@@ -218,6 +218,36 @@ code.inline{background:var(--navy-050);padding:2px 7px;border-radius:5px;font-si
 .form-field textarea{resize:vertical;min-height:80px}
 .form-field .hint{font-size:11.5px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:500}
 
+/* ---------- task detail ---------- */
+.detail-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;
+  background:var(--navy-050);border-radius:var(--r-sm);padding:14px 16px}
+.detail-meta div span{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;margin-bottom:2px}
+.detail-meta div strong{font-size:13.5px;font-weight:600}
+.detail-desc{font-size:14px;white-space:pre-wrap;color:var(--ink)}
+.sec-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--line)}
+
+.attach-list{display:flex;flex-direction:column;gap:8px}
+.attach{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);
+  border-radius:var(--r-sm);background:var(--white)}
+.attach .an{font-weight:600;font-size:13.5px;word-break:break-all}
+.attach .au{font-size:11.5px;color:var(--muted)}
+.attach-add{display:grid;grid-template-columns:1fr 1.4fr auto;gap:8px;align-items:end}
+
+.thread{display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;padding-right:4px}
+.msg{border-radius:var(--r-sm);padding:11px 13px;border:1px solid var(--line);background:var(--white)}
+.msg.mine{background:var(--navy-050);border-color:#D6E2F0}
+.msg.admin-msg{border-left:3px solid var(--orange-500)}
+.msg-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.msg-who{font-weight:700;font-size:12.5px}
+.msg-when{font-size:11px;color:var(--muted)}
+.msg-body{font-size:13.5px;white-space:pre-wrap;word-break:break-word}
+.compose{display:flex;flex-direction:column;gap:8px}
+.compose textarea{min-height:66px}
+.unread-dot{width:7px;height:7px;border-radius:50%;background:var(--orange-500);display:inline-block;flex:none}
+
 .meter{position:fixed;right:14px;bottom:14px;z-index:60;background:var(--navy-900);color:#fff;
   border-radius:999px;padding:7px 14px;font-size:11.5px;font-weight:600;box-shadow:var(--shadow);
   display:flex;align-items:center;gap:7px}
@@ -510,7 +540,10 @@ async function loadTasks(force){
   if (cache.tasks && !force) return cache.tasks;
   let q = db.collection('tasks');
   if (isAdmin()) q = q.orderBy('deadline','asc').limit(TASK_LIMIT);
-  else q = q.where('assigneeEmail','==', myEmail()).orderBy('deadline','asc').limit(TASK_LIMIT);
+  // Partners filter only — sorting happens in sortByDeadline() in the browser.
+  // This deliberately avoids a composite index, so onboarding a new person
+  // never stalls waiting for one to build.
+  else q = q.where('assigneeEmail','==', myEmail()).limit(TASK_LIMIT);
   const snap = await readQuery(q);
   const rows = [];
   snap.forEach(function(doc){
@@ -763,9 +796,16 @@ function taskRow(t, opts){
   const u = urgency(t.deadline, t.status);
   const showActions = opts && opts.actions;
   const desc = String(t.description || '');
+  const unread = isAdmin() ? t.unreadForAdmin : t.unreadForAssignee;
   return '<tr class="is-' + u.key + '">' +
-    '<td><div class="t-title">' + esc(t.title) + '</div>' +
-      (desc ? '<div class="t-desc">' + esc(desc.slice(0,120)) + (desc.length>120?'…':'') + '</div>' : '') + '</td>' +
+    '<td><div class="t-title">' +
+      (unread ? '<span class="unread-dot" title="New activity"></span> ' : '') +
+      esc(t.title) +
+      (t.msgCount ? ' <span class="pill pill-grey">' + t.msgCount + '</span>' : '') +
+      '</div>' +
+      (desc ? '<div class="t-desc">' + esc(desc.slice(0,120)) + (desc.length>120?'…':'') + '</div>' : '') +
+      '<button class="btn-icon" data-open="' + esc(t.id) + '" style="padding-left:0">Open</button>' +
+    '</td>' +
     '<td class="nowrap">' + esc(t.assigneeName || t.assigneeEmail || '—') +
       '<div class="tiny muted">' + esc(t.firmName || '') + '</div></td>' +
     '<td class="nowrap">' + fmtDate(t.deadline) + '</td>' +
@@ -788,6 +828,13 @@ function taskTable(rows, opts){
     '<th>Task</th><th>Assigned to</th><th>Deadline</th><th>Urgency</th><th>Status</th><th>Priority</th>' +
     (actions ? '<th></th>' : '') + '</tr></thead><tbody>' +
     rows.map(function(t){ return taskRow(t, opts); }).join('') + '</tbody></table></div>';
+}
+
+/* Every table renders Open buttons; this wires them wherever they appear. */
+function wireTaskOpen(container){
+  container.querySelectorAll('[data-open]').forEach(function(b){
+    b.addEventListener('click', function(){ openTaskDetail(b.dataset.open); });
+  });
 }
 
 function scardHtml(accent, kicker, title, text, goTo, goLabel){
@@ -854,6 +901,7 @@ const VIEWS = {
     body.querySelectorAll('[data-go]').forEach(function(b){
       b.addEventListener('click', function(){ route(b.dataset.go); });
     });
+    wireTaskOpen(body);
   },
 
   tasks: async function(body){
@@ -886,10 +934,10 @@ const VIEWS = {
     body.innerHTML =
       '<div class="page-head"><div><h2>My tasks</h2><p>Assigned to you by IAMUSAP, most urgent first.</p></div></div>' +
       statTiles(stats) +
-      '<div class="panel"><div class="panel-head"><h3>' + live.length + ' task' + (live.length===1?'':'s') + '</h3></div>' +
-        taskTable(live, { actions:false }) + '</div>' +
-      '<div class="notice mt16"><strong>Status updates arrive in Step 3</strong>' +
-        'This list is read-only for now. Next step adds the buttons to change status, attach a document and reply.</div>';
+      '<div class="panel"><div class="panel-head"><h3>' + live.length + ' task' + (live.length===1?'':'s') + '</h3>' +
+        '<div class="spacer"></div><span class="tiny muted">Open a task to update it</span></div>' +
+        taskTable(live, { actions:false }) + '</div>';
+    wireTaskOpen(body);
   },
 
   firms: async function(body){
@@ -1030,6 +1078,270 @@ function renderWorkTable(){
   host.querySelectorAll('[data-arch]').forEach(function(b){
     b.addEventListener('click', function(){ archiveTask(b.dataset.arch); });
   });
+  wireTaskOpen(host);
+}
+
+/* =====================================================================
+   TASK DETAIL — status, attachments, conversation thread
+   Opened on demand. The thread costs one read per message and is only
+   fetched when a task is actually opened, never on the list screens.
+   ===================================================================== */
+async function openTaskDetail(taskId){
+  const t = (cache.tasks || []).find(function(x){ return x.id === taskId; });
+  if (!t){ toast('That task is no longer loaded. Refresh and try again.','err'); return; }
+
+  const mine = t.assigneeEmail === myEmail();
+  const canEdit = isAdmin() || mine;
+  const u = urgency(t.deadline, t.status);
+
+  openModal({
+    title: t.title,
+    body:
+      '<div class="detail-meta">' +
+        '<div><span>Assigned to</span><strong>' + esc(t.assigneeName || t.assigneeEmail) + '</strong></div>' +
+        '<div><span>Firm</span><strong>' + esc(t.firmName || '—') + '</strong></div>' +
+        '<div><span>Deadline</span><strong>' + fmtDate(t.deadline) + '</strong></div>' +
+        '<div><span>Urgency</span><strong>' + pill(u) + '</strong></div>' +
+        '<div><span>Priority</span><strong>' + esc(PRIORITY[t.priority] || 'Normal') + '</strong></div>' +
+      '</div>' +
+      (t.description ? '<div class="detail-desc">' + esc(t.description) + '</div>' : '') +
+
+      (canEdit ?
+        '<div><div class="sec-title">Status</div>' +
+          '<div class="row mt16">' +
+            '<select id="dStatus" class="ctl">' +
+              Object.keys(STATUS).map(function(k){
+                return '<option value="' + k + '"' + (t.status === k ? ' selected' : '') + '>' + STATUS[k].label + '</option>';
+              }).join('') + '</select>' +
+            '<button class="btn btn-navy btn-sm" id="dSaveStatus">Update status</button>' +
+          '</div></div>'
+        : '<div><div class="sec-title">Status</div><div class="mt16">' + statusPill(t.status) + '</div></div>') +
+
+      '<div><div class="sec-title">Attachments</div>' +
+        '<div class="attach-list mt16" id="dAttach"></div>' +
+        (canEdit ?
+          '<div class="attach-add mt16">' +
+            '<div class="form-field"><label>File name</label><input id="aName" placeholder="e.g. IPR document"></div>' +
+            '<div class="form-field"><label>Link</label><input id="aUrl" placeholder="https://drive.google.com/…"></div>' +
+            '<button class="btn btn-ghost btn-sm" id="dAddAttach">Add</button>' +
+          '</div>' +
+          '<div class="hint tiny mt16">Upload the file to Google Drive, set sharing, then paste the link here.</div>'
+          : '') +
+      '</div>' +
+
+      '<div><div class="sec-title">Conversation</div>' +
+        '<div class="thread mt16" id="dThread"><div class="loading-row"><div class="spinner sm"></div> Loading messages…</div></div>' +
+        '<div class="compose mt16">' +
+          '<textarea id="dMsg" placeholder="' + (isAdmin() ? 'Message to ' + esc((t.assigneeName||'').split(' ')[0] || 'this person') + '…' : 'Reply to IAMUSAP…') + '"></textarea>' +
+          '<div class="row"><button class="btn btn-primary btn-sm" id="dPost">Post message</button>' +
+            '<span class="tiny muted">Appears in their dashboard immediately.</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="dErr"></div>',
+    foot:'<button class="btn btn-ghost" data-close>Close</button>',
+    onReady: function(root){
+      renderAttachments(root, t, canEdit);
+      loadThread(root, t);
+
+      const ss = root.querySelector('#dSaveStatus');
+      if (ss) ss.addEventListener('click', function(){ saveStatus(root, t); });
+
+      const aa = root.querySelector('#dAddAttach');
+      if (aa) aa.addEventListener('click', function(){ addAttachment(root, t); });
+
+      root.querySelector('#dPost').addEventListener('click', function(){ postMessage(root, t); });
+      markRead(t);
+    }
+  });
+}
+
+function renderAttachments(root, t, canEdit){
+  const host = root.querySelector('#dAttach');
+  const list = t.attachments || [];
+  if (!list.length){
+    host.innerHTML = '<p class="small muted">Nothing attached yet.</p>';
+    return;
+  }
+  host.innerHTML = list.map(function(a, i){
+    return '<div class="attach">' +
+      '<div><div class="an"><a href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer">' + esc(a.name || a.url) + '</a></div>' +
+      '<div class="au">Added by ' + esc(a.addedBy || '—') + ' · ' + fmtDate(a.addedAt) + '</div></div>' +
+      '<div class="spacer"></div>' +
+      (canEdit ? '<button class="btn-icon" data-rmattach="' + i + '">Remove</button>' : '') +
+    '</div>';
+  }).join('');
+  host.querySelectorAll('[data-rmattach]').forEach(function(b){
+    b.addEventListener('click', function(){ removeAttachment(root, t, parseInt(b.dataset.rmattach, 10)); });
+  });
+}
+
+async function addAttachment(root, t){
+  const nameEl = root.querySelector('#aName');
+  const urlEl = root.querySelector('#aUrl');
+  const errBox = root.querySelector('#dErr');
+  const name = nameEl.value.trim();
+  const url = urlEl.value.trim();
+
+  if (!url){ errBox.innerHTML = '<div class="notice">Paste the link to the file.</div>'; return; }
+  if (!/^https?:\/\//i.test(url)){ errBox.innerHTML = '<div class="notice">The link must start with http:// or https://</div>'; return; }
+
+  const entry = { name: name || url, url: url, addedBy: myEmail(), addedAt: TS.fromDate(new Date()) };
+  const list = (t.attachments || []).concat([entry]);
+
+  try {
+    await db.collection('tasks').doc(t.id).update({ attachments: list, updatedAt: FV.serverTimestamp() });
+    t.attachments = list;
+    nameEl.value = ''; urlEl.value = '';
+    errBox.innerHTML = '';
+    renderAttachments(root, t, true);
+    toast('Attachment added', 'ok');
+  } catch (err){
+    console.error(err);
+    errBox.innerHTML = '<div class="notice"><strong>Could not attach</strong>' + esc(err.message || String(err)) + '</div>';
+  }
+}
+
+async function removeAttachment(root, t, index){
+  const list = (t.attachments || []).slice();
+  list.splice(index, 1);
+  try {
+    await db.collection('tasks').doc(t.id).update({ attachments: list, updatedAt: FV.serverTimestamp() });
+    t.attachments = list;
+    renderAttachments(root, t, true);
+    toast('Attachment removed', 'ok');
+  } catch (err){
+    console.error(err);
+    toast('Could not remove: ' + (err.message || err.code), 'err');
+  }
+}
+
+async function saveStatus(root, t){
+  const btn = root.querySelector('#dSaveStatus');
+  const errBox = root.querySelector('#dErr');
+  const status = root.querySelector('#dStatus').value;
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const payload = {
+    status: status,
+    completedDate: status === 'completed' ? TS.fromDate(new Date()) : null,
+    unreadForAdmin: !isAdmin(),
+    updatedAt: FV.serverTimestamp()
+  };
+
+  try {
+    await db.collection('tasks').doc(t.id).update(payload);
+    Object.assign(t, payload);
+    toast('Status set to ' + STATUS[status].label, 'ok');
+    btn.disabled = false;
+    btn.textContent = 'Update status';
+    if (session.view === 'tasks') renderWorkTable();
+  } catch (err){
+    console.error(err);
+    btn.disabled = false;
+    btn.textContent = 'Update status';
+    errBox.innerHTML = '<div class="notice"><strong>Could not update</strong>' + esc(err.message || String(err)) + '</div>';
+  }
+}
+
+async function loadThread(root, t){
+  const host = root.querySelector('#dThread');
+  try {
+    const snap = await readQuery(
+      db.collection('tasks').doc(t.id).collection('thread').orderBy('createdAt','asc').limit(100)
+    );
+    const msgs = [];
+    snap.forEach(function(d){ const m = d.data() || {}; m.id = d.id; msgs.push(m); });
+    renderThread(host, msgs);
+  } catch (err){
+    console.error(err);
+    host.innerHTML = '<p class="small muted">Could not load messages: ' + esc(err.message || String(err)) + '</p>';
+  }
+}
+
+function renderThread(host, msgs){
+  if (!msgs.length){
+    host.innerHTML = '<p class="small muted">No messages yet. Anything posted here is kept with the task permanently.</p>';
+    return;
+  }
+  host.innerHTML = msgs.map(function(m){
+    const mine = m.authorEmail === myEmail();
+    const channel = m.channel && m.channel !== 'app'
+      ? ' <span class="pill pill-grey">' + esc(m.channel) + '</span>' : '';
+    return '<div class="msg' + (mine ? ' mine' : '') + (m.authorRole === 'admin' ? ' admin-msg' : '') + '">' +
+      '<div class="msg-head"><span class="msg-who">' + esc(m.authorName || m.authorEmail) + '</span>' +
+        channel +
+        '<span class="msg-when">' + fmtDateTime(m.createdAt) + '</span></div>' +
+      '<div class="msg-body">' + esc(m.body) + '</div></div>';
+  }).join('');
+  host.scrollTop = host.scrollHeight;
+}
+
+function fmtDateTime(v){
+  const d = toDate(v);
+  if (!d) return 'just now';
+  return d.toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+async function postMessage(root, t){
+  const box = root.querySelector('#dMsg');
+  const btn = root.querySelector('#dPost');
+  const errBox = root.querySelector('#dErr');
+  const body = box.value.trim();
+  if (!body){ errBox.innerHTML = '<div class="notice">Type a message first.</div>'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Posting…';
+
+  const msg = clean({
+    body: body,
+    authorEmail: myEmail(),
+    authorName: session.profile.name || myEmail(),
+    authorRole: session.role,
+    channel: 'app',
+    direction: isAdmin() ? 'outbound' : 'inbound',
+    loggedManually: false,
+    createdAt: FV.serverTimestamp()
+  });
+
+  try {
+    await db.collection('tasks').doc(t.id).collection('thread').add(msg);
+    await db.collection('tasks').doc(t.id).update({
+      msgCount: (t.msgCount || 0) + 1,
+      lastMessageAt: FV.serverTimestamp(),
+      lastMessageBy: myEmail(),
+      unreadForAdmin: !isAdmin(),
+      unreadForAssignee: isAdmin(),
+      updatedAt: FV.serverTimestamp()
+    });
+    t.msgCount = (t.msgCount || 0) + 1;
+    t.unreadForAdmin = !isAdmin();
+    t.unreadForAssignee = isAdmin();
+    box.value = '';
+    errBox.innerHTML = '';
+    await loadThread(root, t);
+    toast('Message posted', 'ok');
+  } catch (err){
+    console.error(err);
+    errBox.innerHTML = '<div class="notice"><strong>Could not post</strong>' + esc(err.message || String(err)) + '</div>';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Post message';
+}
+
+/* Clear my own unread flag when I open the task. */
+async function markRead(t){
+  const field = isAdmin() ? 'unreadForAdmin' : 'unreadForAssignee';
+  if (!t[field]) return;
+  const patch = {};
+  patch[field] = false;
+  patch.updatedAt = FV.serverTimestamp();
+  try {
+    await db.collection('tasks').doc(t.id).update(patch);
+    t[field] = false;
+  } catch (err){
+    console.error('markRead failed', err);
+  }
 }
 
 /* ---------- task create / edit ---------- */
