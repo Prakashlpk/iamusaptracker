@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IAMUSAP Ventures — Work &amp; Compliance Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-900:#0E2338; --navy-800:#153351; --navy-700:#1F4E79;
+  --navy-600:#2A6296; --navy-500:#3C7EBF; --navy-050:#EEF3F9;
+  --orange-600:#C8621B; --orange-500:#E8792B; --orange-400:#F5A55E; --orange-050:#FDF1E7;
+  --ink:#12202F; --muted:#5B6B7D; --line:#E3E8EE; --bg:#F6F8FB; --white:#fff;
+  --red-600:#C0392B; --red-500:#E04B37; --red-050:#FDEDEA;
+  --yellow-500:#F2C230; --yellow-050:#FEF8E4;
+  --green-600:#1E7A55; --green-050:#E8F5EF;
+  --r-sm:8px; --r-md:12px; --r-lg:16px;
+  --shadow:0 1px 2px rgba(14,35,56,.06),0 8px 24px rgba(14,35,56,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  background:var(--bg); color:var(--ink); font-size:15px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.display{font-family:'Bricolage Grotesque','Plus Jakarta Sans',sans-serif;letter-spacing:-.02em;line-height:1.2}
+a{color:var(--navy-600);text-decoration:none}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;color:inherit}
+:focus-visible{outline:3px solid var(--orange-400);outline-offset:2px;border-radius:4px}
+
+/* ---------- utility ---------- */
+.hidden{display:none !important}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+.stack{display:flex;flex-direction:column;gap:22px}
+.row{display:flex;align-items:center;gap:10px}
+.spacer{flex:1}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.tiny{font-size:11.5px}
+.mono{font-variant-numeric:tabular-nums}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;
+  padding:10px 18px;border-radius:var(--r-sm);font-weight:600;font-size:14px;
+  transition:background .15s ease,box-shadow .15s ease,transform .06s ease;
+}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--orange-500);color:#fff}
+.btn-primary:hover{background:var(--orange-600)}
+.btn-navy{background:var(--navy-700);color:#fff}
+.btn-navy:hover{background:var(--navy-800)}
+.btn-ghost{background:var(--white);color:var(--navy-700);box-shadow:inset 0 0 0 1px var(--line)}
+.btn-ghost:hover{background:var(--navy-050)}
+.btn-sm{padding:6px 12px;font-size:13px}
+
+/* ---------- sign-in ---------- */
+#signinView{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(1100px 620px at 15% -10%,var(--navy-700) 0%,var(--navy-900) 58%,#08192a 100%);
+}
+.signin-card{
+  width:100%;max-width:430px;background:var(--white);border-radius:var(--r-lg);
+  padding:38px 34px;box-shadow:0 24px 60px rgba(0,0,0,.30);
+}
+.brand-rule{width:46px;height:4px;background:var(--orange-500);border-radius:3px;margin-bottom:18px}
+.signin-eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange-600);font-weight:700}
+.signin-card h1{font-size:29px;margin:6px 0 8px;font-weight:700}
+.signin-card p.lede{color:var(--muted);font-size:14px;margin-bottom:26px}
+.gbtn{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:11px;
+  padding:13px;border-radius:var(--r-sm);font-weight:600;
+  background:var(--navy-700);color:#fff;
+}
+.gbtn:hover{background:var(--navy-800)}
+.gbtn svg{background:#fff;border-radius:3px;padding:2px}
+.signin-foot{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+
+/* ---------- top bar ---------- */
+.topbar{background:var(--navy-900);color:#fff;position:sticky;top:0;z-index:40}
+.topbar .wrap{display:flex;align-items:center;gap:16px;height:62px}
+.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+.logo .dot{width:9px;height:9px;border-radius:50%;background:var(--orange-500);flex:none}
+.logo span.sub{font-family:'Plus Jakarta Sans';font-weight:500;font-size:11.5px;color:#9DB3C8;letter-spacing:0}
+.who{display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--navy-600);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.who-name{font-size:13.5px;font-weight:600;line-height:1.2}
+.who-role{font-size:11px;color:#9DB3C8;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.linkout{color:#9DB3C8;font-size:13px;font-weight:600}
+.linkout:hover{color:#fff}
+
+/* ---------- nav ---------- */
+.nav{background:var(--navy-800);border-bottom:3px solid var(--orange-500);position:sticky;top:62px;z-index:35}
+.nav .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.nav .wrap::-webkit-scrollbar{display:none}
+.navbtn{
+  padding:13px 17px;color:#B9CBDC;font-weight:600;font-size:14px;white-space:nowrap;
+  border-bottom:3px solid transparent;margin-bottom:-3px;
+}
+.navbtn:hover{color:#fff}
+.navbtn.active{color:#fff;border-bottom-color:var(--orange-500)}
+
+/* ---------- page ---------- */
+.page{padding:30px 0 70px}
+.page-head{margin-bottom:24px}
+.page-head h2{font-size:26px;font-weight:700}
+.page-head p{color:var(--muted);font-size:14px;margin-top:4px}
+
+/* ---------- section cards (light, left border accent) ---------- */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:18px}
+.scard{
+  background:var(--white);border-radius:var(--r-md);padding:20px 22px;
+  border-left:5px solid var(--navy-600);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:7px;text-align:left;transition:transform .12s ease,box-shadow .12s ease;
+}
+.scard:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(14,35,56,.07),0 14px 34px rgba(14,35,56,.11)}
+.scard.a-orange{border-left-color:var(--orange-500)}
+.scard.a-navy{border-left-color:var(--navy-600)}
+.scard.a-red{border-left-color:var(--red-500)}
+.scard.a-green{border-left-color:var(--green-600)}
+.scard.a-yellow{border-left-color:var(--yellow-500)}
+.scard h3{font-size:16.5px;font-weight:700}
+.scard p{font-size:13.5px;color:var(--muted)}
+.scard .kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--navy-600)}
+.scard.a-orange .kicker{color:var(--orange-600)}
+
+/* ---------- stat tiles ---------- */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.stat{border-radius:var(--r-md);padding:16px 18px;color:#fff}
+.stat.navy{background:var(--navy-800)}
+.stat.orange{background:var(--orange-500)}
+.stat .n{font-family:'Bricolage Grotesque',sans-serif;font-size:28px;font-weight:800;line-height:1.1}
+.stat .l{font-size:12px;opacity:.88;margin-top:2px}
+
+/* ---------- panel ---------- */
+.panel{background:var(--white);border-radius:var(--r-md);box-shadow:var(--shadow);overflow:hidden}
+.panel-head{padding:15px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.panel-head h3{font-size:15.5px;font-weight:700}
+.panel-body{padding:20px}
+.panel-scroll{max-height:420px;overflow-y:auto}
+
+/* ---------- pills ---------- */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.02em}
+.pill-red{background:var(--red-050);color:var(--red-600)}
+.pill-yellow{background:var(--yellow-050);color:#8A6A05}
+.pill-green{background:var(--green-050);color:var(--green-600)}
+.pill-navy{background:var(--navy-050);color:var(--navy-700)}
+.pill-orange{background:var(--orange-050);color:var(--orange-600)}
+.pill-flash{animation:flash 1.15s ease-in-out infinite}
+@keyframes flash{0%,100%{opacity:1}50%{opacity:.42}}
+
+/* ---------- empty / notice ---------- */
+.empty{text-align:center;padding:44px 22px;color:var(--muted)}
+.empty h4{font-family:'Bricolage Grotesque',sans-serif;font-size:17px;color:var(--ink);margin-bottom:6px}
+.empty p{font-size:13.5px;max-width:420px;margin:0 auto}
+.notice{
+  background:var(--orange-050);border-left:4px solid var(--orange-500);
+  border-radius:var(--r-sm);padding:14px 16px;font-size:13.5px;
+}
+.notice strong{display:block;margin-bottom:3px;font-weight:700}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:9px 14px;font-size:13.5px}
+.kv dt{color:var(--muted);font-weight:600}
+.kv dd{font-weight:600;word-break:break-word}
+code.inline{background:var(--navy-050);padding:2px 7px;border-radius:5px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace}
+
+/* ---------- blocked screen ---------- */
+#blockedView{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
+.blocked-card{max-width:520px;background:var(--white);border-radius:var(--r-lg);padding:34px;box-shadow:var(--shadow);border-top:5px solid var(--orange-500)}
+.blocked-card h2{font-size:22px;margin-bottom:8px}
+.blocked-card p{font-size:14px;color:var(--muted);margin-bottom:14px}
+
+/* ---------- read meter ---------- */
+.meter{
+  position:fixed;right:14px;bottom:14px;z-index:60;background:var(--navy-900);color:#fff;
+  border-radius:999px;padding:7px 14px;font-size:11.5px;font-weight:600;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:7px;
+}
+.meter .dot{width:7px;height:7px;border-radius:50%;background:var(--green-600)}
+.meter.warn .dot{background:var(--yellow-500)}
+.meter.high .dot{background:var(--red-500)}
+
+/* ---------- toast ---------- */
+#toasts{position:fixed;top:16px;right:16px;z-index:90;display:flex;flex-direction:column;gap:9px;max-width:340px}
+.toast{
+  background:var(--navy-900);color:#fff;padding:12px 16px;border-radius:var(--r-sm);
+  font-size:13.5px;box-shadow:0 10px 30px rgba(0,0,0,.24);border-left:4px solid var(--orange-500);
+  animation:slidein .22s ease;
+}
+.toast.ok{border-left-color:var(--green-600)}
+.toast.err{border-left-color:var(--red-500)}
+@keyframes slidein{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+
+/* ---------- loading ---------- */
+#bootView{min-height:100vh;display:grid;place-items:center;background:var(--bg)}
+.spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--orange-500);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001s !important;transition-duration:.001s !important}
+}
+@media (max-width:640px){
+  .topbar .wrap{height:56px;gap:10px}
+  .who-name,.logo span.sub{display:none}
+  .nav{top:56px}
+  .page-head h2{font-size:22px}
+  .kv{grid-template-columns:1fr;gap:2px 0}
+  .kv dd{margin-bottom:8px}
+}
+</style>
+</head>
+<body>
+
+<div id="bootView"><div class="spinner"></div></div>
+
+<!-- ============ SIGN IN ============ -->
+<div id="signinView" class="hidden">
+  <div class="signin-card">
+    <div class="brand-rule"></div>
+    <div class="signin-eyebrow">IAMUSAP Ventures</div>
+    <h1>Work &amp; Compliance Tracker</h1>
+    <p class="lede">Assigned work, partner firms and statutory deadlines in one place.</p>
+    <button class="gbtn" id="btnSignin">
+      <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Sign in with Google
+    </button>
+    <div class="signin-foot">
+      Access is by invitation. If your email is not registered you will be told on the next screen.
+    </div>
+  </div>
+</div>
+
+<!-- ============ NO ACCESS ============ -->
+<div id="blockedView" class="hidden">
+  <div class="blocked-card">
+    <h2 id="blockedTitle">Account not registered</h2>
+    <p id="blockedMsg"></p>
+    <div class="notice" id="blockedHint"></div>
+    <div class="row" style="margin-top:20px">
+      <button class="btn btn-navy" id="btnBlockedRetry">Try again</button>
+      <button class="btn btn-ghost" id="btnBlockedOut">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="appView" class="hidden">
+
+  <header class="topbar">
+    <div class="wrap">
+      <div class="logo"><span class="dot"></span>IAMUSAP <span class="sub">Work &amp; Compliance Tracker</span></div>
+      <div class="spacer"></div>
+      <div class="who">
+        <div class="avatar" id="uAvatar"></div>
+        <div>
+          <div class="who-name" id="uName"></div>
+          <div class="who-role" id="uRole"></div>
+        </div>
+      </div>
+      <button class="linkout" id="btnSignout">Sign out</button>
+    </div>
+  </header>
+
+  <nav class="nav"><div class="wrap" id="navBar"></div></nav>
+
+  <main class="page"><div class="wrap" id="pageBody"></div></main>
+</div>
+
+<div class="meter" id="readMeter" title="Firestore documents read this session"><span class="dot"></span><span id="readCount">0</span> reads</div>
+<div id="toasts"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script>
+'use strict';
+
+/* =====================================================================
+   IAMUSAP VENTURES — WORK & COMPLIANCE TRACKER
+   Step 1: authentication, role routing, cached data layer, shell.
+   ===================================================================== */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBm-OneYvHk-fsaM2VyR_gnde3d0e_hUGg",
+  authDomain: "iamusap-tracker.firebaseapp.com",
+  projectId: "iamusap-tracker",
+  storageBucket: "iamusap-tracker.firebasestorage.app",
+  messagingSenderId: "678213142485",
+  appId: "1:678213142485:web:24d6751f424a9bd72fdf5c"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+/* ---------------------------------------------------------------------
+   READ BUDGET
+   Every Firestore read goes through readDoc/readQuery so the counter in
+   the bottom-right always reflects reality. If that number climbs while
+   you are only clicking between tabs, something is re-reading and needs
+   fixing. It should stay flat after login.
+   --------------------------------------------------------------------- */
+const meter = { reads: 0 };
+
+function countReads(n){
+  meter.reads += n;
+  const el = document.getElementById('readCount');
+  const box = document.getElementById('readMeter');
+  if (el) el.textContent = meter.reads;
+  if (box){
+    box.classList.toggle('warn', meter.reads > 150);
+    box.classList.toggle('high', meter.reads > 400);
+  }
+}
+
+async function readDoc(ref){
+  const snap = await ref.get();
+  countReads(1);
+  return snap;
+}
+
+async function readQuery(query){
+  const snap = await query.get();
+  countReads(snap.size || 0);
+  return snap;
+}
+
+/* ---------------------------------------------------------------------
+   IN-MEMORY CACHE
+   Loaded once per sign-in. Navigation reads from here, never from
+   Firestore. Anything that writes must call cache.invalidate(key).
+   --------------------------------------------------------------------- */
+const cache = {
+  profile: null,      // the signed-in person's users/{email} record
+  directory: null,    // meta/directory — firms + people, one document
+  tasks: null,        // open tasks (scope depends on role)
+  clients: null,      // admin only
+  loadedAt: {},
+  invalidate(key){ this[key] = null; delete this.loadedAt[key]; },
+  clear(){ this.profile=this.directory=this.tasks=this.clients=null; this.loadedAt={}; }
+};
+
+/* ---------------------------------------------------------------------
+   SESSION
+   --------------------------------------------------------------------- */
+const session = { user: null, profile: null, role: null, view: null };
+
+const isAdmin   = () => session.role === 'admin';
+const myEmail   = () => (session.user && session.user.email || '').toLowerCase();
+
+/* ---------------------------------------------------------------------
+   SMALL HELPERS
+   --------------------------------------------------------------------- */
+function $(id){ return document.getElementById(id); }
+
+function esc(v){
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function initials(name){
+  const parts = String(name || '?').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+}
+
+function show(viewId){
+  ['bootView','signinView','blockedView','appView'].forEach(function(id){
+    const el = $(id);
+    if (el) el.classList.toggle('hidden', id !== viewId);
+  });
+}
+
+function toast(message, kind){
+  const box = $('toasts');
+  if (!box) return;
+  const t = document.createElement('div');
+  t.className = 'toast' + (kind ? ' ' + kind : '');
+  t.textContent = message;
+  box.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 4200);
+}
+
+/* ---------------------------------------------------------------------
+   DATES & URGENCY
+   One source of truth for "how urgent is this". Every screen uses it, so
+   the colours can never disagree between the admin list and the partner
+   list. Comparison is done at local midnight, so a task due today is
+   "today" all day, not "overdue" from 12:01 am.
+   --------------------------------------------------------------------- */
+function startOfDay(d){
+  const x = new Date(d);
+  x.setHours(0,0,0,0);
+  return x;
+}
+
+function toDate(value){
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (typeof value.toDate === 'function') return value.toDate();   // Firestore Timestamp
+  const parsed = new Date(value);
+  return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function daysUntil(deadline){
+  const d = toDate(deadline);
+  if (!d) return null;
+  const ms = startOfDay(d) - startOfDay(new Date());
+  return Math.round(ms / 86400000);
+}
+
+// Returns {key, label, cls, flash} — never null, so callers can render blindly.
+function urgency(deadline, status){
+  if (status === 'completed') return { key:'done', label:'Completed', cls:'pill-green', flash:false };
+  const n = daysUntil(deadline);
+  if (n === null)  return { key:'none',    label:'No deadline',            cls:'pill-navy',   flash:false };
+  if (n < 0)       return { key:'overdue', label:'Overdue by ' + Math.abs(n) + (Math.abs(n)===1?' day':' days'), cls:'pill-red', flash:false };
+  if (n === 0)     return { key:'today',   label:'Due today',              cls:'pill-red',    flash:true };
+  if (n <= 2)      return { key:'urgent',  label:n + (n===1?' day left!':' days left!'),      cls:'pill-red',    flash:true };
+  if (n <= 7)      return { key:'soon',    label:n + ' days left',         cls:'pill-yellow', flash:false };
+  return { key:'later', label:'Due in ' + n + ' days', cls:'pill-navy', flash:false };
+}
+
+function fmtDate(value){
+  const d = toDate(value);
+  if (!d) return '—';
+  return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+/* Next occurrence of a recurring compliance date (month 1-12, day 1-31). */
+function nextComplianceDate(month, day){
+  const today = startOfDay(new Date());
+  let year = today.getFullYear();
+  let candidate = startOfDay(new Date(year, month - 1, day));
+  if (candidate < today) candidate = startOfDay(new Date(year + 1, month - 1, day));
+  return candidate;
+}
+
+/* ---------------------------------------------------------------------
+   PROFILE LOOKUP — exactly one document read per sign-in
+   --------------------------------------------------------------------- */
+async function loadProfile(email){
+  if (cache.profile) return cache.profile;
+  const snap = await readDoc(db.collection('users').doc(email));
+  if (!snap.exists) return null;
+  const data = snap.data() || {};
+  data.email = (data.email || email).toLowerCase();
+  cache.profile = data;
+  cache.loadedAt.profile = Date.now();
+  return data;
+}
+
+/* ---------------------------------------------------------------------
+   AUTH FLOW
+   --------------------------------------------------------------------- */
+async function signIn(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  try {
+    await auth.signInWithPopup(provider);
+  } catch (err){
+    if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') return;
+    if (err.code === 'auth/popup-blocked'){
+      toast('Your browser blocked the sign-in window. Allow pop-ups for this site and try again.', 'err');
+      return;
+    }
+    if (err.code === 'auth/unauthorized-domain'){
+      toast('This web address is not authorised in Firebase. Add it under Authentication → Settings → Authorized domains.', 'err');
+      return;
+    }
+    console.error(err);
+    toast('Sign-in failed: ' + (err.message || err.code), 'err');
+  }
+}
+
+async function signOut(){
+  cache.clear();
+  session.user = session.profile = session.role = null;
+  await auth.signOut();
+}
+
+function showBlocked(title, message, hintHtml){
+  $('blockedTitle').textContent = title;
+  $('blockedMsg').textContent = message;
+  $('blockedHint').innerHTML = hintHtml;
+  show('blockedView');
+}
+
+auth.onAuthStateChanged(async function(user){
+  if (!user){
+    cache.clear();
+    show('signinView');
+    return;
+  }
+
+  show('bootView');
+  session.user = user;
+  const email = (user.email || '').toLowerCase();
+
+  let profile;
+  try {
+    profile = await loadProfile(email);
+  } catch (err){
+    console.error(err);
+    showBlocked(
+      'Could not reach the database',
+      'Signed in as ' + email + ', but the record lookup failed.',
+      '<strong>Usual cause</strong>The Firestore security rules have not been published yet, or the database was created in a different project. Check Firestore → Rules.'
+    );
+    return;
+  }
+
+  if (!profile){
+    showBlocked(
+      'Account not registered',
+      'You signed in as ' + email + ', but there is no record for this address.',
+      '<strong>To grant access</strong>In Firebase → Firestore → collection <code class="inline">users</code>, create a document with the ID <code class="inline">' + esc(email) + '</code> and the fields name, role, firmId, firmName, active.'
+    );
+    return;
+  }
+
+  if (profile.active === false){
+    showBlocked(
+      'Access switched off',
+      'The account ' + email + ' exists but has been deactivated.',
+      '<strong>To restore access</strong>Set <code class="inline">active</code> to true on that person\u2019s record in Firestore.'
+    );
+    return;
+  }
+
+  session.profile = profile;
+  session.role = profile.role === 'admin' ? 'admin' : 'partner';
+  startApp();
+});
+
+/* ---------------------------------------------------------------------
+   SHELL
+   --------------------------------------------------------------------- */
+const NAV = {
+  admin: [
+    { id:'home',       label:'Overview' },
+    { id:'tasks',      label:'All work' },
+    { id:'firms',      label:'Partner firms' },
+    { id:'clients',    label:'Clients & compliance' },
+    { id:'reports',    label:'Reports' }
+  ],
+  partner: [
+    { id:'home',       label:'Overview' },
+    { id:'mytasks',    label:'My tasks' },
+    { id:'messages',   label:'Messages' }
+  ]
+};
+
+function startApp(){
+  const p = session.profile;
+  $('uName').textContent = p.name || p.email;
+  $('uRole').textContent = isAdmin() ? 'IAMUSAP Admin' : (p.firmName || 'Partner');
+
+  const av = $('uAvatar');
+  if (session.user.photoURL){
+    av.innerHTML = '<img alt="" src="' + esc(session.user.photoURL) + '">';
+  } else {
+    av.textContent = initials(p.name || p.email);
+  }
+
+  const bar = $('navBar');
+  bar.innerHTML = '';
+  NAV[session.role].forEach(function(item){
+    const b = document.createElement('button');
+    b.className = 'navbtn';
+    b.textContent = item.label;
+    b.dataset.view = item.id;
+    b.addEventListener('click', function(){ route(item.id); });
+    bar.appendChild(b);
+  });
+
+  show('appView');
+  route('home');
+}
+
+function route(viewId){
+  session.view = viewId;
+  document.querySelectorAll('.navbtn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.view === viewId);
+  });
+  const body = $('pageBody');
+  const renderer = VIEWS[viewId];
+  body.innerHTML = renderer ? renderer() : placeholder('Not found', 'That screen does not exist yet.');
+  window.scrollTo({ top:0, behavior:'instant' });
+}
+
+/* ---------------------------------------------------------------------
+   VIEWS
+   Only Overview is live in Step 1. The rest are honest placeholders so
+   you can see the shape of the app before the features land.
+   --------------------------------------------------------------------- */
+function placeholder(title, note, step){
+  return '<div class="page-head"><h2>' + esc(title) + '</h2></div>' +
+    '<div class="panel"><div class="empty">' +
+      '<h4>' + esc(title) + ' is not built yet</h4>' +
+      '<p>' + esc(note) + '</p>' +
+      (step ? '<p style="margin-top:12px"><span class="pill pill-orange">Step ' + esc(step) + '</span></p>' : '') +
+    '</div></div>';
+}
+
+function sectionCard(accent, kicker, title, text){
+  return '<div class="scard a-' + accent + '">' +
+    '<div class="kicker">' + esc(kicker) + '</div>' +
+    '<h3>' + esc(title) + '</h3>' +
+    '<p>' + esc(text) + '</p>' +
+  '</div>';
+}
+
+const VIEWS = {
+
+  home: function(){
+    const p = session.profile;
+    const admin = isAdmin();
+
+    const cards = admin ? [
+      sectionCard('orange','Step 2','Assign work','Create a task, pick the person, set the deadline. Ordered by urgency across every partner firm.'),
+      sectionCard('navy','Step 3','Partner dashboards','Each member signs in and sees only their own list. Nothing else is visible to them.'),
+      sectionCard('yellow','Step 4','Chase and record','WhatsApp and email buttons with the message pre-written, plus the reply thread against each task.'),
+      sectionCard('red','Step 5','Compliance calendar','ITR, AOC-4, MGT-7A and DIR-3 KYC per client, rolling forward every year.'),
+      sectionCard('green','Step 6','Exports','Excel download of any filtered view for reporting and filing records.')
+    ].join('') : [
+      sectionCard('orange','Step 3','Your task list','Everything assigned to you, most urgent first, with status you can update yourself.'),
+      sectionCard('navy','Step 4','Attachments and replies','Attach a document to a task and reply to IAMUSAP without leaving the page.')
+    ].join('');
+
+    const roleExplainer = admin
+      ? 'You are registered as an <strong>administrator</strong>, so you will see every partner firm, every person and every client once those screens are built.'
+      : 'You are registered under <strong>' + esc(p.firmName || 'your firm') + '</strong>. You will only ever see work assigned to you \u2014 other partners\u2019 tasks are refused by the database itself, not merely hidden.';
+
+    return '' +
+      '<div class="page-head">' +
+        '<h2>' + (admin ? 'Overview' : 'Welcome, ' + esc((p.name || '').split(' ')[0] || 'there')) + '</h2>' +
+        '<p>' + (admin ? 'Signed in as administrator. Feature screens arrive in the next steps.' : 'Your workspace is ready. Task screens arrive in the next step.') + '</p>' +
+      '</div>' +
+
+      '<div class="stat-grid">' +
+        '<div class="stat navy"><div class="n mono">—</div><div class="l">Overdue</div></div>' +
+        '<div class="stat orange"><div class="n mono">—</div><div class="l">Due today</div></div>' +
+        '<div class="stat navy"><div class="n mono">—</div><div class="l">Due this week</div></div>' +
+        '<div class="stat orange"><div class="n mono">—</div><div class="l">Completed</div></div>' +
+      '</div>' +
+
+      '<div class="panel" style="margin-bottom:22px">' +
+        '<div class="panel-head"><h3>Sign-in confirmed</h3><div class="spacer"></div>' +
+          '<span class="pill ' + (admin ? 'pill-orange' : 'pill-navy') + '">' + (admin ? 'Administrator' : 'Partner member') + '</span>' +
+        '</div>' +
+        '<div class="panel-body">' +
+          '<dl class="kv">' +
+            '<dt>Name</dt><dd>' + esc(p.name || '—') + '</dd>' +
+            '<dt>Email</dt><dd>' + esc(p.email) + '</dd>' +
+            '<dt>Role</dt><dd>' + esc(session.role) + '</dd>' +
+            '<dt>Firm</dt><dd>' + esc(p.firmName || '—') + '</dd>' +
+            '<dt>Reads used</dt><dd class="mono" id="kvReads">' + meter.reads + '</dd>' +
+          '</dl>' +
+          '<p class="small muted" style="margin-top:16px">' + roleExplainer + '</p>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="page-head"><h2 style="font-size:19px">Coming next</h2></div>' +
+      '<div class="card-grid">' + cards + '</div>';
+  },
+
+  tasks:    function(){ return placeholder('All work', 'Every task across all partner firms, ordered by deadline, with filters by firm, person, status and date range.', 2); },
+  firms:    function(){ return placeholder('Partner firms', 'Add partner firms and the people inside them. Everyone added here can sign in with Google straight away.', 2); },
+  clients:  function(){ return placeholder('Clients & compliance', 'Statutory deadlines per client, rolling forward each year, with a one-tap reminder email.', 5); },
+  reports:  function(){ return placeholder('Reports', 'Excel export of any filtered view, plus a monthly summary.', 6); },
+  mytasks:  function(){ return placeholder('My tasks', 'Your assigned work, most urgent first, with status updates and attachments.', 3); },
+  messages: function(){ return placeholder('Messages', 'Notes and replies between you and IAMUSAP, kept against each task.', 4); }
+};
+
+/* ---------------------------------------------------------------------
+   WIRING
+   --------------------------------------------------------------------- */
+$('btnSignin').addEventListener('click', signIn);
+$('btnSignout').addEventListener('click', signOut);
+$('btnBlockedOut').addEventListener('click', signOut);
+$('btnBlockedRetry').addEventListener('click', function(){
+  cache.invalidate('profile');
+  location.reload();
+});
+
+/* ---------------------------------------------------------------------
+   SELF-TEST — runs once in the console at load.
+   Confirms the date and urgency logic before any real data exists.
+   --------------------------------------------------------------------- */
+(function selfTest(){
+  const day = 86400000;
+  const now = Date.now();
+  const cases = [
+    [new Date(now - 3*day), 'not_started', 'overdue'],
+    [new Date(now),         'not_started', 'today'  ],
+    [new Date(now + 2*day), 'in_progress', 'urgent' ],
+    [new Date(now + 5*day), 'not_started', 'soon'   ],
+    [new Date(now + 30*day),'not_started', 'later'  ],
+    [new Date(now - 3*day), 'completed',   'done'   ],
+    [null,                  'not_started', 'none'   ]
+  ];
+  let pass = 0;
+  cases.forEach(function(c){
+    const got = urgency(c[0], c[1]).key;
+    if (got === c[2]) pass++;
+    else console.warn('Urgency test failed:', c[0], c[1], 'expected', c[2], 'got', got);
+  });
+  const nc = nextComplianceDate(10, 31);
+  const ok = nc >= startOfDay(new Date());
+  console.log('IAMUSAP self-test: urgency ' + pass + '/' + cases.length +
+              ', next ITR date ' + fmtDate(nc) + ' ' + (ok ? 'OK' : 'FAILED'));
+})();
+</script>
+</body>
+</html>
