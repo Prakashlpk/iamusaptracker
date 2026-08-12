@@ -21,102 +21,88 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{
-  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
-  background:var(--bg); color:var(--ink); font-size:15px; line-height:1.55;
-  -webkit-font-smoothing:antialiased;
-}
-h1,h2,h3,h4,.display{font-family:'Bricolage Grotesque','Plus Jakarta Sans',sans-serif;letter-spacing:-.02em;line-height:1.2}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:var(--bg);
+  color:var(--ink);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:'Bricolage Grotesque','Plus Jakarta Sans',sans-serif;letter-spacing:-.02em;line-height:1.2}
 a{color:var(--navy-600);text-decoration:none}
 button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 :focus-visible{outline:3px solid var(--orange-400);outline-offset:2px;border-radius:4px}
 
-/* ---------- utility ---------- */
 .hidden{display:none !important}
 .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
-.stack{display:flex;flex-direction:column;gap:22px}
 .row{display:flex;align-items:center;gap:10px}
 .spacer{flex:1}
 .muted{color:var(--muted)}
 .small{font-size:13px}
 .tiny{font-size:11.5px}
 .mono{font-variant-numeric:tabular-nums}
+.nowrap{white-space:nowrap}
+.mt16{margin-top:16px}
+.mb18{margin-bottom:18px}
 
-/* ---------- buttons ---------- */
-.btn{
-  display:inline-flex;align-items:center;gap:8px;justify-content:center;
-  padding:10px 18px;border-radius:var(--r-sm);font-weight:600;font-size:14px;
-  transition:background .15s ease,box-shadow .15s ease,transform .06s ease;
-}
+.btn{display:inline-flex;align-items:center;gap:8px;justify-content:center;padding:10px 18px;
+  border-radius:var(--r-sm);font-weight:600;font-size:14px;
+  transition:background .15s ease,box-shadow .15s ease,transform .06s ease}
 .btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
 .btn-primary{background:var(--orange-500);color:#fff}
-.btn-primary:hover{background:var(--orange-600)}
+.btn-primary:hover:not(:disabled){background:var(--orange-600)}
 .btn-navy{background:var(--navy-700);color:#fff}
-.btn-navy:hover{background:var(--navy-800)}
+.btn-navy:hover:not(:disabled){background:var(--navy-800)}
 .btn-ghost{background:var(--white);color:var(--navy-700);box-shadow:inset 0 0 0 1px var(--line)}
-.btn-ghost:hover{background:var(--navy-050)}
+.btn-ghost:hover:not(:disabled){background:var(--navy-050)}
+.btn-danger{background:var(--red-050);color:var(--red-600);box-shadow:inset 0 0 0 1px #F3C9C2}
+.btn-danger:hover:not(:disabled){background:#FBDDD7}
 .btn-sm{padding:6px 12px;font-size:13px}
+.btn-icon{padding:6px 9px;border-radius:6px;font-size:13px;color:var(--muted);font-weight:600}
+.btn-icon:hover{background:var(--navy-050);color:var(--navy-700)}
 
-/* ---------- sign-in ---------- */
-#signinView{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
-  background:radial-gradient(1100px 620px at 15% -10%,var(--navy-700) 0%,var(--navy-900) 58%,#08192a 100%);
-}
-.signin-card{
-  width:100%;max-width:430px;background:var(--white);border-radius:var(--r-lg);
-  padding:38px 34px;box-shadow:0 24px 60px rgba(0,0,0,.30);
-}
+#signinView{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(1100px 620px at 15% -10%,var(--navy-700) 0%,var(--navy-900) 58%,#08192a 100%)}
+.signin-card{width:100%;max-width:430px;background:var(--white);border-radius:var(--r-lg);
+  padding:38px 34px;box-shadow:0 24px 60px rgba(0,0,0,.30)}
 .brand-rule{width:46px;height:4px;background:var(--orange-500);border-radius:3px;margin-bottom:18px}
 .signin-eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange-600);font-weight:700}
 .signin-card h1{font-size:29px;margin:6px 0 8px;font-weight:700}
-.signin-card p.lede{color:var(--muted);font-size:14px;margin-bottom:26px}
-.gbtn{
-  width:100%;display:flex;align-items:center;justify-content:center;gap:11px;
-  padding:13px;border-radius:var(--r-sm);font-weight:600;
-  background:var(--navy-700);color:#fff;
-}
+.lede{color:var(--muted);font-size:14px;margin-bottom:26px}
+.gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:11px;padding:13px;
+  border-radius:var(--r-sm);font-weight:600;background:var(--navy-700);color:#fff}
 .gbtn:hover{background:var(--navy-800)}
 .gbtn svg{background:#fff;border-radius:3px;padding:2px}
 .signin-foot{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
 
-/* ---------- top bar ---------- */
 .topbar{background:var(--navy-900);color:#fff;position:sticky;top:0;z-index:40}
 .topbar .wrap{display:flex;align-items:center;gap:16px;height:62px}
-.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:18px;display:flex;align-items:center;gap:9px}
 .logo .dot{width:9px;height:9px;border-radius:50%;background:var(--orange-500);flex:none}
-.logo span.sub{font-family:'Plus Jakarta Sans';font-weight:500;font-size:11.5px;color:#9DB3C8;letter-spacing:0}
+.logo .sub{font-family:'Plus Jakarta Sans';font-weight:500;font-size:11.5px;color:#9DB3C8;letter-spacing:0}
 .who{display:flex;align-items:center;gap:10px}
-.avatar{width:32px;height:32px;border-radius:50%;background:var(--navy-600);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none;overflow:hidden}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--navy-600);display:grid;place-items:center;
+  font-weight:700;font-size:13px;flex:none;overflow:hidden}
 .avatar img{width:100%;height:100%;object-fit:cover}
 .who-name{font-size:13.5px;font-weight:600;line-height:1.2}
 .who-role{font-size:11px;color:#9DB3C8;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
 .linkout{color:#9DB3C8;font-size:13px;font-weight:600}
 .linkout:hover{color:#fff}
 
-/* ---------- nav ---------- */
 .nav{background:var(--navy-800);border-bottom:3px solid var(--orange-500);position:sticky;top:62px;z-index:35}
 .nav .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 .nav .wrap::-webkit-scrollbar{display:none}
-.navbtn{
-  padding:13px 17px;color:#B9CBDC;font-weight:600;font-size:14px;white-space:nowrap;
-  border-bottom:3px solid transparent;margin-bottom:-3px;
-}
+.navbtn{padding:13px 17px;color:#B9CBDC;font-weight:600;font-size:14px;white-space:nowrap;
+  border-bottom:3px solid transparent;margin-bottom:-3px}
 .navbtn:hover{color:#fff}
 .navbtn.active{color:#fff;border-bottom-color:var(--orange-500)}
 
-/* ---------- page ---------- */
-.page{padding:30px 0 70px}
-.page-head{margin-bottom:24px}
+.page{padding:30px 0 90px}
+.page-head{margin-bottom:22px;display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .page-head h2{font-size:26px;font-weight:700}
 .page-head p{color:var(--muted);font-size:14px;margin-top:4px}
 
-/* ---------- section cards (light, left border accent) ---------- */
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:18px}
-.scard{
-  background:var(--white);border-radius:var(--r-md);padding:20px 22px;
-  border-left:5px solid var(--navy-600);box-shadow:var(--shadow);
-  display:flex;flex-direction:column;gap:7px;text-align:left;transition:transform .12s ease,box-shadow .12s ease;
-}
+.scard{background:var(--white);border-radius:var(--r-md);padding:20px 22px;border-left:5px solid var(--navy-600);
+  box-shadow:var(--shadow);display:flex;flex-direction:column;gap:7px;
+  transition:transform .12s ease,box-shadow .12s ease}
 .scard:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(14,35,56,.07),0 14px 34px rgba(14,35,56,.11)}
 .scard.a-orange{border-left-color:var(--orange-500)}
 .scard.a-navy{border-left-color:var(--navy-600)}
@@ -127,88 +113,143 @@ button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;backgrou
 .scard p{font-size:13.5px;color:var(--muted)}
 .scard .kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--navy-600)}
 .scard.a-orange .kicker{color:var(--orange-600)}
+.scard .foot{margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
-/* ---------- stat tiles ---------- */
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
-.stat{border-radius:var(--r-md);padding:16px 18px;color:#fff}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.stat{border-radius:var(--r-md);padding:16px 18px;color:#fff;transition:transform .12s ease}
+.stat:hover{transform:translateY(-2px)}
 .stat.navy{background:var(--navy-800)}
 .stat.orange{background:var(--orange-500)}
+.stat.red{background:var(--red-600)}
+.stat.green{background:var(--green-600)}
 .stat .n{font-family:'Bricolage Grotesque',sans-serif;font-size:28px;font-weight:800;line-height:1.1}
-.stat .l{font-size:12px;opacity:.88;margin-top:2px}
+.stat .l{font-size:12px;opacity:.9;margin-top:2px}
 
-/* ---------- panel ---------- */
 .panel{background:var(--white);border-radius:var(--r-md);box-shadow:var(--shadow);overflow:hidden}
-.panel-head{padding:15px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.panel-head{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .panel-head h3{font-size:15.5px;font-weight:700}
 .panel-body{padding:20px}
-.panel-scroll{max-height:420px;overflow-y:auto}
 
-/* ---------- pills ---------- */
-.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.02em}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:14px 20px;
+  background:var(--navy-050);border-bottom:1px solid var(--line)}
+.field{display:flex;flex-direction:column;gap:4px}
+.field > label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ctl{padding:8px 11px;border-radius:7px;border:1px solid var(--line);background:var(--white);min-width:140px}
+.ctl:focus{border-color:var(--navy-500);outline:none;box-shadow:0 0 0 3px rgba(42,98,150,.14)}
+.ctl.wide{min-width:220px}
+.checkline{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--muted);
+  text-transform:none;letter-spacing:0;padding-bottom:8px}
+
+.tbl-wrap{overflow:auto;max-height:620px}
+table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+table.tbl th{position:sticky;top:0;background:var(--navy-800);color:#fff;text-align:left;padding:11px 14px;
+  font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;z-index:2;white-space:nowrap}
+table.tbl td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tbl tr:hover td{background:var(--navy-050)}
+table.tbl tr.is-overdue td:first-child,
+table.tbl tr.is-today td:first-child,
+table.tbl tr.is-urgent td:first-child{box-shadow:inset 3px 0 0 var(--red-500)}
+table.tbl tr.is-soon td:first-child{box-shadow:inset 3px 0 0 var(--yellow-500)}
+.t-title{font-weight:700;color:var(--ink)}
+.t-desc{color:var(--muted);font-size:12.5px;margin-top:2px;max-width:340px}
+.cell-actions{display:flex;gap:4px;justify-content:flex-end}
+
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;
+  font-size:11.5px;font-weight:700;white-space:nowrap}
 .pill-red{background:var(--red-050);color:var(--red-600)}
 .pill-yellow{background:var(--yellow-050);color:#8A6A05}
 .pill-green{background:var(--green-050);color:var(--green-600)}
 .pill-navy{background:var(--navy-050);color:var(--navy-700)}
 .pill-orange{background:var(--orange-050);color:var(--orange-600)}
+.pill-grey{background:#EEF1F5;color:var(--muted)}
 .pill-flash{animation:flash 1.15s ease-in-out infinite}
 @keyframes flash{0%,100%{opacity:1}50%{opacity:.42}}
 
-/* ---------- empty / notice ---------- */
+.firm-card{background:var(--white);border-radius:var(--r-md);box-shadow:var(--shadow);
+  border-left:5px solid var(--navy-600);overflow:hidden;margin-bottom:16px}
+.firm-card.owner{border-left-color:var(--orange-500)}
+.firm-head{padding:15px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.firm-head h3{font-size:16.5px;font-weight:700}
+.person{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line)}
+.person:last-child{border-bottom:none}
+.person .avatar{background:var(--navy-050);color:var(--navy-700)}
+.person-name{font-weight:600;font-size:14px}
+.person-mail{font-size:12.5px;color:var(--muted);word-break:break-all}
+
 .empty{text-align:center;padding:44px 22px;color:var(--muted)}
 .empty h4{font-family:'Bricolage Grotesque',sans-serif;font-size:17px;color:var(--ink);margin-bottom:6px}
-.empty p{font-size:13.5px;max-width:420px;margin:0 auto}
-.notice{
-  background:var(--orange-050);border-left:4px solid var(--orange-500);
-  border-radius:var(--r-sm);padding:14px 16px;font-size:13.5px;
-}
+.empty p{font-size:13.5px;max-width:440px;margin:0 auto}
+.empty .btn{margin-top:16px}
+.notice{background:var(--orange-050);border-left:4px solid var(--orange-500);border-radius:var(--r-sm);
+  padding:14px 16px;font-size:13.5px}
 .notice strong{display:block;margin-bottom:3px;font-weight:700}
 .kv{display:grid;grid-template-columns:130px 1fr;gap:9px 14px;font-size:13.5px}
 .kv dt{color:var(--muted);font-weight:600}
 .kv dd{font-weight:600;word-break:break-word}
 code.inline{background:var(--navy-050);padding:2px 7px;border-radius:5px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace}
 
-/* ---------- blocked screen ---------- */
 #blockedView{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
-.blocked-card{max-width:520px;background:var(--white);border-radius:var(--r-lg);padding:34px;box-shadow:var(--shadow);border-top:5px solid var(--orange-500)}
+.blocked-card{max-width:520px;background:var(--white);border-radius:var(--r-lg);padding:34px;
+  box-shadow:var(--shadow);border-top:5px solid var(--orange-500)}
 .blocked-card h2{font-size:22px;margin-bottom:8px}
 .blocked-card p{font-size:14px;color:var(--muted);margin-bottom:14px}
 
-/* ---------- read meter ---------- */
-.meter{
-  position:fixed;right:14px;bottom:14px;z-index:60;background:var(--navy-900);color:#fff;
+.backdrop{position:fixed;inset:0;background:rgba(9,22,36,.55);z-index:70;display:flex;
+  align-items:flex-start;justify-content:center;padding:26px 16px;overflow-y:auto;animation:fade .16s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:var(--white);border-radius:var(--r-lg);width:100%;max-width:620px;
+  box-shadow:0 30px 70px rgba(0,0,0,.35);overflow:hidden;animation:pop .18s ease}
+@keyframes pop{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.modal.narrow{max-width:460px}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.modal-head h3{font-size:18px;font-weight:700}
+.modal-body{padding:22px;display:flex;flex-direction:column;gap:16px;max-height:70vh;overflow-y:auto}
+.modal-foot{padding:15px 22px;border-top:1px solid var(--line);display:flex;gap:10px;
+  justify-content:flex-end;background:var(--navy-050)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-field{display:flex;flex-direction:column;gap:5px}
+.form-field label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.form-field .req{color:var(--red-500)}
+.form-field input,.form-field select,.form-field textarea{padding:10px 12px;border-radius:7px;
+  border:1px solid var(--line);background:var(--white);width:100%}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{
+  border-color:var(--navy-500);outline:none;box-shadow:0 0 0 3px rgba(42,98,150,.14)}
+.form-field input:disabled{background:var(--navy-050);color:var(--muted)}
+.form-field textarea{resize:vertical;min-height:80px}
+.form-field .hint{font-size:11.5px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:500}
+
+.meter{position:fixed;right:14px;bottom:14px;z-index:60;background:var(--navy-900);color:#fff;
   border-radius:999px;padding:7px 14px;font-size:11.5px;font-weight:600;box-shadow:var(--shadow);
-  display:flex;align-items:center;gap:7px;
-}
+  display:flex;align-items:center;gap:7px}
 .meter .dot{width:7px;height:7px;border-radius:50%;background:var(--green-600)}
 .meter.warn .dot{background:var(--yellow-500)}
 .meter.high .dot{background:var(--red-500)}
 
-/* ---------- toast ---------- */
 #toasts{position:fixed;top:16px;right:16px;z-index:90;display:flex;flex-direction:column;gap:9px;max-width:340px}
-.toast{
-  background:var(--navy-900);color:#fff;padding:12px 16px;border-radius:var(--r-sm);
-  font-size:13.5px;box-shadow:0 10px 30px rgba(0,0,0,.24);border-left:4px solid var(--orange-500);
-  animation:slidein .22s ease;
-}
+.toast{background:var(--navy-900);color:#fff;padding:12px 16px;border-radius:var(--r-sm);font-size:13.5px;
+  box-shadow:0 10px 30px rgba(0,0,0,.24);border-left:4px solid var(--orange-500);animation:slidein .22s ease}
 .toast.ok{border-left-color:var(--green-600)}
 .toast.err{border-left-color:var(--red-500)}
 @keyframes slidein{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
 
-/* ---------- loading ---------- */
 #bootView{min-height:100vh;display:grid;place-items:center;background:var(--bg)}
-.spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--orange-500);border-radius:50%;animation:spin .8s linear infinite}
+.spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--orange-500);
+  border-radius:50%;animation:spin .8s linear infinite}
+.spinner.sm{width:18px;height:18px;border-width:2px}
 @keyframes spin{to{transform:rotate(360deg)}}
+.loading-row{display:flex;align-items:center;gap:10px;padding:34px;justify-content:center;color:var(--muted);font-size:13.5px}
 
-@media (prefers-reduced-motion:reduce){
-  *{animation-duration:.001s !important;transition-duration:.001s !important}
-}
-@media (max-width:640px){
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s !important;transition-duration:.001s !important}}
+@media (max-width:760px){
   .topbar .wrap{height:56px;gap:10px}
-  .who-name,.logo span.sub{display:none}
+  .who-name,.logo .sub{display:none}
   .nav{top:56px}
   .page-head h2{font-size:22px}
   .kv{grid-template-columns:1fr;gap:2px 0}
   .kv dd{margin-bottom:8px}
+  .form-row{grid-template-columns:1fr}
+  .ctl{min-width:120px}
+  .t-desc{display:none}
 }
 </style>
 </head>
@@ -216,7 +257,6 @@ code.inline{background:var(--navy-050);padding:2px 7px;border-radius:5px;font-si
 
 <div id="bootView"><div class="spinner"></div></div>
 
-<!-- ============ SIGN IN ============ -->
 <div id="signinView" class="hidden">
   <div class="signin-card">
     <div class="brand-rule"></div>
@@ -227,28 +267,23 @@ code.inline{background:var(--navy-050);padding:2px 7px;border-radius:5px;font-si
       <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Sign in with Google
     </button>
-    <div class="signin-foot">
-      Access is by invitation. If your email is not registered you will be told on the next screen.
-    </div>
+    <div class="signin-foot">Access is by invitation. If your email is not registered you will be told on the next screen.</div>
   </div>
 </div>
 
-<!-- ============ NO ACCESS ============ -->
 <div id="blockedView" class="hidden">
   <div class="blocked-card">
     <h2 id="blockedTitle">Account not registered</h2>
     <p id="blockedMsg"></p>
     <div class="notice" id="blockedHint"></div>
-    <div class="row" style="margin-top:20px">
+    <div class="row mt16">
       <button class="btn btn-navy" id="btnBlockedRetry">Try again</button>
       <button class="btn btn-ghost" id="btnBlockedOut">Sign out</button>
     </div>
   </div>
 </div>
 
-<!-- ============ APP ============ -->
 <div id="appView" class="hidden">
-
   <header class="topbar">
     <div class="wrap">
       <div class="logo"><span class="dot"></span>IAMUSAP <span class="sub">Work &amp; Compliance Tracker</span></div>
@@ -263,14 +298,13 @@ code.inline{background:var(--navy-050);padding:2px 7px;border-radius:5px;font-si
       <button class="linkout" id="btnSignout">Sign out</button>
     </div>
   </header>
-
   <nav class="nav"><div class="wrap" id="navBar"></div></nav>
-
   <main class="page"><div class="wrap" id="pageBody"></div></main>
 </div>
 
 <div class="meter" id="readMeter" title="Firestore documents read this session"><span class="dot"></span><span id="readCount">0</span> reads</div>
 <div id="toasts"></div>
+<div id="modalHost"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
@@ -280,7 +314,8 @@ code.inline{background:var(--navy-050);padding:2px 7px;border-radius:5px;font-si
 
 /* =====================================================================
    IAMUSAP VENTURES — WORK & COMPLIANCE TRACKER
-   Step 1: authentication, role routing, cached data layer, shell.
+   Step 1: auth, roles, shell.
+   Step 2: partner firms, people, task assignment, filters, live counts.
    ===================================================================== */
 
 const firebaseConfig = {
@@ -295,16 +330,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
+const FV   = firebase.firestore.FieldValue;
+const TS   = firebase.firestore.Timestamp;
 
-/* ---------------------------------------------------------------------
-   READ BUDGET
-   Every Firestore read goes through readDoc/readQuery so the counter in
-   the bottom-right always reflects reality. If that number climbs while
-   you are only clicking between tabs, something is re-reading and needs
-   fixing. It should stay flat after login.
-   --------------------------------------------------------------------- */
+const TASK_LIMIT = 400;
+
+/* ---------- read budget ---------- */
 const meter = { reads: 0 };
-
 function countReads(n){
   meter.reads += n;
   const el = document.getElementById('readCount');
@@ -315,45 +347,23 @@ function countReads(n){
     box.classList.toggle('high', meter.reads > 400);
   }
 }
+async function readDoc(ref){ const s = await ref.get(); countReads(1); return s; }
+async function readQuery(q){ const s = await q.get(); countReads(s.size || 0); return s; }
 
-async function readDoc(ref){
-  const snap = await ref.get();
-  countReads(1);
-  return snap;
-}
-
-async function readQuery(query){
-  const snap = await query.get();
-  countReads(snap.size || 0);
-  return snap;
-}
-
-/* ---------------------------------------------------------------------
-   IN-MEMORY CACHE
-   Loaded once per sign-in. Navigation reads from here, never from
-   Firestore. Anything that writes must call cache.invalidate(key).
-   --------------------------------------------------------------------- */
+/* ---------- cache ---------- */
 const cache = {
-  profile: null,      // the signed-in person's users/{email} record
-  directory: null,    // meta/directory — firms + people, one document
-  tasks: null,        // open tasks (scope depends on role)
-  clients: null,      // admin only
-  loadedAt: {},
-  invalidate(key){ this[key] = null; delete this.loadedAt[key]; },
-  clear(){ this.profile=this.directory=this.tasks=this.clients=null; this.loadedAt={}; }
+  profile:null, directory:null, tasks:null, clients:null,
+  invalidate(k){ this[k] = null; },
+  clear(){ this.profile=this.directory=this.tasks=this.clients=null; }
 };
 
-/* ---------------------------------------------------------------------
-   SESSION
-   --------------------------------------------------------------------- */
-const session = { user: null, profile: null, role: null, view: null };
+const session = { user:null, profile:null, role:null, view:null };
+const isAdmin = () => session.role === 'admin';
+const myEmail = () => (session.user && session.user.email || '').toLowerCase();
 
-const isAdmin   = () => session.role === 'admin';
-const myEmail   = () => (session.user && session.user.email || '').toLowerCase();
+const filters = { firm:'', person:'', status:'', urgency:'', from:'', to:'', q:'', archived:false };
 
-/* ---------------------------------------------------------------------
-   SMALL HELPERS
-   --------------------------------------------------------------------- */
+/* ---------- helpers ---------- */
 function $(id){ return document.getElementById(id); }
 
 function esc(v){
@@ -363,10 +373,10 @@ function esc(v){
 }
 
 function initials(name){
-  const parts = String(name || '?').trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return '?';
-  if (parts.length === 1) return parts[0].slice(0,2).toUpperCase();
-  return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+  const p = String(name || '?').trim().split(/\s+/).filter(Boolean);
+  if (!p.length) return '?';
+  if (p.length === 1) return p[0].slice(0,2).toUpperCase();
+  return (p[0][0] + p[p.length-1][0]).toUpperCase();
 }
 
 function show(viewId){
@@ -376,103 +386,152 @@ function show(viewId){
   });
 }
 
-function toast(message, kind){
+function toast(msg, kind){
   const box = $('toasts');
   if (!box) return;
   const t = document.createElement('div');
   t.className = 'toast' + (kind ? ' ' + kind : '');
-  t.textContent = message;
+  t.textContent = msg;
   box.appendChild(t);
   setTimeout(function(){ t.remove(); }, 4200);
 }
 
-/* ---------------------------------------------------------------------
-   DATES & URGENCY
-   One source of truth for "how urgent is this". Every screen uses it, so
-   the colours can never disagree between the admin list and the partner
-   list. Comparison is done at local midnight, so a task due today is
-   "today" all day, not "overdue" from 12:01 am.
-   --------------------------------------------------------------------- */
-function startOfDay(d){
-  const x = new Date(d);
-  x.setHours(0,0,0,0);
-  return x;
+/* Firestore rejects undefined outright — strip before every write. */
+function clean(obj){
+  const out = {};
+  Object.keys(obj).forEach(function(k){ if (obj[k] !== undefined) out[k] = obj[k]; });
+  return out;
 }
 
-function toDate(value){
-  if (!value) return null;
-  if (value instanceof Date) return value;
-  if (typeof value.toDate === 'function') return value.toDate();   // Firestore Timestamp
-  const parsed = new Date(value);
-  return isNaN(parsed.getTime()) ? null : parsed;
+function slugify(s){
+  return String(s || '').toLowerCase().trim()
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40) || 'firm';
+}
+
+function validEmail(s){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(s || '').trim()); }
+
+/* ---------- dates & urgency: one source of truth ---------- */
+function startOfDay(d){ const x = new Date(d); x.setHours(0,0,0,0); return x; }
+
+function toDate(v){
+  if (!v) return null;
+  if (v instanceof Date) return v;
+  if (typeof v.toDate === 'function') return v.toDate();
+  const p = new Date(v);
+  return isNaN(p.getTime()) ? null : p;
 }
 
 function daysUntil(deadline){
   const d = toDate(deadline);
   if (!d) return null;
-  const ms = startOfDay(d) - startOfDay(new Date());
-  return Math.round(ms / 86400000);
+  return Math.round((startOfDay(d) - startOfDay(new Date())) / 86400000);
 }
 
-// Returns {key, label, cls, flash} — never null, so callers can render blindly.
 function urgency(deadline, status){
   if (status === 'completed') return { key:'done', label:'Completed', cls:'pill-green', flash:false };
   const n = daysUntil(deadline);
-  if (n === null)  return { key:'none',    label:'No deadline',            cls:'pill-navy',   flash:false };
-  if (n < 0)       return { key:'overdue', label:'Overdue by ' + Math.abs(n) + (Math.abs(n)===1?' day':' days'), cls:'pill-red', flash:false };
-  if (n === 0)     return { key:'today',   label:'Due today',              cls:'pill-red',    flash:true };
-  if (n <= 2)      return { key:'urgent',  label:n + (n===1?' day left!':' days left!'),      cls:'pill-red',    flash:true };
-  if (n <= 7)      return { key:'soon',    label:n + ' days left',         cls:'pill-yellow', flash:false };
+  if (n === null) return { key:'none', label:'No deadline', cls:'pill-grey', flash:false };
+  if (n < 0)   return { key:'overdue', label:'Overdue by ' + Math.abs(n) + (Math.abs(n)===1?' day':' days'), cls:'pill-red', flash:false };
+  if (n === 0) return { key:'today',   label:'Due today', cls:'pill-red', flash:true };
+  if (n <= 2)  return { key:'urgent',  label:n + (n===1?' day left!':' days left!'), cls:'pill-red', flash:true };
+  if (n <= 7)  return { key:'soon',    label:n + ' days left', cls:'pill-yellow', flash:false };
   return { key:'later', label:'Due in ' + n + ' days', cls:'pill-navy', flash:false };
 }
 
-function fmtDate(value){
-  const d = toDate(value);
+function fmtDate(v){
+  const d = toDate(v);
   if (!d) return '—';
   return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
 }
 
-/* Next occurrence of a recurring compliance date (month 1-12, day 1-31). */
-function nextComplianceDate(month, day){
-  const today = startOfDay(new Date());
-  let year = today.getFullYear();
-  let candidate = startOfDay(new Date(year, month - 1, day));
-  if (candidate < today) candidate = startOfDay(new Date(year + 1, month - 1, day));
-  return candidate;
+function toInputDate(v){
+  const d = toDate(v);
+  if (!d) return '';
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
-/* ---------------------------------------------------------------------
-   PROFILE LOOKUP — exactly one document read per sign-in
-   --------------------------------------------------------------------- */
+function nextComplianceDate(month, day){
+  const today = startOfDay(new Date());
+  let c = startOfDay(new Date(today.getFullYear(), month-1, day));
+  if (c < today) c = startOfDay(new Date(today.getFullYear()+1, month-1, day));
+  return c;
+}
+
+const STATUS = {
+  not_started:{ label:'Not started', cls:'pill-grey'   },
+  in_progress:{ label:'In progress', cls:'pill-navy'   },
+  blocked:    { label:'Blocked',     cls:'pill-orange' },
+  completed:  { label:'Completed',   cls:'pill-green'  }
+};
+const PRIORITY = { low:'Low', normal:'Normal', high:'High' };
+
+/* ---------- data layer ---------- */
 async function loadProfile(email){
   if (cache.profile) return cache.profile;
   const snap = await readDoc(db.collection('users').doc(email));
   if (!snap.exists) return null;
-  const data = snap.data() || {};
-  data.email = (data.email || email).toLowerCase();
-  cache.profile = data;
-  cache.loadedAt.profile = Date.now();
-  return data;
+  const d = snap.data() || {};
+  d.email = (d.email || email).toLowerCase();
+  cache.profile = d;
+  return d;
 }
 
-/* ---------------------------------------------------------------------
-   AUTH FLOW
-   --------------------------------------------------------------------- */
+async function loadDirectory(force){
+  if (cache.directory && !force) return cache.directory;
+  const snap = await readDoc(db.collection('meta').doc('directory'));
+  const d = snap.exists ? (snap.data() || {}) : {};
+  cache.directory = { firms: d.firms || [], people: d.people || [] };
+  return cache.directory;
+}
+
+async function rebuildDirectory(){
+  const firmsSnap  = await readQuery(db.collection('firms'));
+  const peopleSnap = await readQuery(db.collection('users'));
+  const firms = [];
+  firmsSnap.forEach(function(doc){
+    const d = doc.data() || {};
+    firms.push({ id:doc.id, name:d.name || doc.id, active:d.active !== false });
+  });
+  const people = [];
+  peopleSnap.forEach(function(doc){
+    const d = doc.data() || {};
+    people.push({
+      email: doc.id, name: d.name || doc.id, role: d.role || 'partner',
+      firmId: d.firmId || '', firmName: d.firmName || '',
+      phone: d.phone || '', active: d.active !== false
+    });
+  });
+  await db.collection('meta').doc('directory').set({ firms:firms, people:people, updatedAt: FV.serverTimestamp() });
+  cache.directory = { firms:firms, people:people };
+  return cache.directory;
+}
+
+async function loadTasks(force){
+  if (cache.tasks && !force) return cache.tasks;
+  let q = db.collection('tasks');
+  if (isAdmin()) q = q.orderBy('deadline','asc').limit(TASK_LIMIT);
+  else q = q.where('assigneeEmail','==', myEmail()).orderBy('deadline','asc').limit(TASK_LIMIT);
+  const snap = await readQuery(q);
+  const rows = [];
+  snap.forEach(function(doc){
+    const d = doc.data() || {};
+    d.id = doc.id;
+    rows.push(d);
+  });
+  cache.tasks = rows;
+  return rows;
+}
+
+/* ---------- auth ---------- */
 async function signIn(){
   const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: 'select_account' });
+  provider.setCustomParameters({ prompt:'select_account' });
   try {
     await auth.signInWithPopup(provider);
   } catch (err){
     if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') return;
-    if (err.code === 'auth/popup-blocked'){
-      toast('Your browser blocked the sign-in window. Allow pop-ups for this site and try again.', 'err');
-      return;
-    }
-    if (err.code === 'auth/unauthorized-domain'){
-      toast('This web address is not authorised in Firebase. Add it under Authentication → Settings → Authorized domains.', 'err');
-      return;
-    }
+    if (err.code === 'auth/popup-blocked'){ toast('Your browser blocked the sign-in window. Allow pop-ups and try again.','err'); return; }
+    if (err.code === 'auth/unauthorized-domain'){ toast('This address is not authorised in Firebase. Add it under Authentication → Settings → Authorized domains.','err'); return; }
     console.error(err);
     toast('Sign-in failed: ' + (err.message || err.code), 'err');
   }
@@ -484,20 +543,15 @@ async function signOut(){
   await auth.signOut();
 }
 
-function showBlocked(title, message, hintHtml){
+function showBlocked(title, msg, hint){
   $('blockedTitle').textContent = title;
-  $('blockedMsg').textContent = message;
-  $('blockedHint').innerHTML = hintHtml;
+  $('blockedMsg').textContent = msg;
+  $('blockedHint').innerHTML = hint;
   show('blockedView');
 }
 
 auth.onAuthStateChanged(async function(user){
-  if (!user){
-    cache.clear();
-    show('signinView');
-    return;
-  }
-
+  if (!user){ cache.clear(); show('signinView'); return; }
   show('bootView');
   session.user = user;
   const email = (user.email || '').toLowerCase();
@@ -507,29 +561,22 @@ auth.onAuthStateChanged(async function(user){
     profile = await loadProfile(email);
   } catch (err){
     console.error(err);
-    showBlocked(
-      'Could not reach the database',
+    showBlocked('Could not reach the database',
       'Signed in as ' + email + ', but the record lookup failed.',
-      '<strong>Usual cause</strong>The Firestore security rules have not been published yet, or the database was created in a different project. Check Firestore → Rules.'
-    );
+      '<strong>Usual cause</strong>The Firestore security rules have not been published, or the database is in a different project.');
     return;
   }
 
   if (!profile){
-    showBlocked(
-      'Account not registered',
+    showBlocked('Account not registered',
       'You signed in as ' + email + ', but there is no record for this address.',
-      '<strong>To grant access</strong>In Firebase → Firestore → collection <code class="inline">users</code>, create a document with the ID <code class="inline">' + esc(email) + '</code> and the fields name, role, firmId, firmName, active.'
-    );
+      '<strong>To grant access</strong>In Firestore → <code class="inline">users</code>, create a document with the ID <code class="inline">' + esc(email) + '</code> and the fields name, role, firmId, firmName, active.');
     return;
   }
-
   if (profile.active === false){
-    showBlocked(
-      'Access switched off',
+    showBlocked('Access switched off',
       'The account ' + email + ' exists but has been deactivated.',
-      '<strong>To restore access</strong>Set <code class="inline">active</code> to true on that person\u2019s record in Firestore.'
-    );
+      '<strong>To restore access</strong>Set <code class="inline">active</code> to true on that record.');
     return;
   }
 
@@ -538,21 +585,55 @@ auth.onAuthStateChanged(async function(user){
   startApp();
 });
 
-/* ---------------------------------------------------------------------
-   SHELL
-   --------------------------------------------------------------------- */
+/* ---------- modal ---------- */
+let modalOpen = false;
+
+function openModal(opts){
+  closeModal();
+  modalOpen = true;
+  const back = document.createElement('div');
+  back.className = 'backdrop';
+  back.innerHTML =
+    '<div class="modal' + (opts.narrow ? ' narrow' : '') + '" role="dialog" aria-modal="true">' +
+      '<div class="modal-head"><h3>' + esc(opts.title) + '</h3><div class="spacer"></div>' +
+        '<button class="btn-icon" data-close aria-label="Close">Close</button></div>' +
+      '<div class="modal-body">' + opts.body + '</div>' +
+      '<div class="modal-foot">' + (opts.foot || '') + '</div>' +
+    '</div>';
+  back.addEventListener('mousedown', function(e){ if (e.target === back) closeModal(); });
+  back.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeModal); });
+  $('modalHost').appendChild(back);
+  if (typeof opts.onReady === 'function') opts.onReady(back);
+  const first = back.querySelector('input:not([disabled]),select,textarea');
+  if (first) first.focus();
+}
+
+function closeModal(){ $('modalHost').innerHTML = ''; modalOpen = false; }
+
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && modalOpen) closeModal(); });
+
+function confirmDialog(title, message, confirmLabel, onConfirm){
+  openModal({
+    title:title, narrow:true,
+    body:'<p class="small">' + esc(message) + '</p>',
+    foot:'<button class="btn btn-ghost" data-close>Cancel</button>' +
+         '<button class="btn btn-danger" id="cfmYes">' + esc(confirmLabel) + '</button>',
+    onReady:function(root){
+      root.querySelector('#cfmYes').addEventListener('click', function(){ closeModal(); onConfirm(); });
+    }
+  });
+}
+
+/* ---------- shell ---------- */
 const NAV = {
   admin: [
-    { id:'home',       label:'Overview' },
-    { id:'tasks',      label:'All work' },
-    { id:'firms',      label:'Partner firms' },
-    { id:'clients',    label:'Clients & compliance' },
-    { id:'reports',    label:'Reports' }
+    { id:'home', label:'Overview' }, { id:'tasks', label:'All work' },
+    { id:'firms', label:'Partner firms' }, { id:'clients', label:'Clients & compliance' },
+    { id:'reports', label:'Reports' }
   ],
   partner: [
-    { id:'home',       label:'Overview' },
-    { id:'mytasks',    label:'My tasks' },
-    { id:'messages',   label:'Messages' }
+    { id:'home', label:'Overview' }, { id:'mytasks', label:'My tasks' },
+    { id:'messages', label:'Messages' }
   ]
 };
 
@@ -560,13 +641,9 @@ function startApp(){
   const p = session.profile;
   $('uName').textContent = p.name || p.email;
   $('uRole').textContent = isAdmin() ? 'IAMUSAP Admin' : (p.firmName || 'Partner');
-
   const av = $('uAvatar');
-  if (session.user.photoURL){
-    av.innerHTML = '<img alt="" src="' + esc(session.user.photoURL) + '">';
-  } else {
-    av.textContent = initials(p.name || p.email);
-  }
+  if (session.user.photoURL) av.innerHTML = '<img alt="" src="' + esc(session.user.photoURL) + '">';
+  else av.textContent = initials(p.name || p.email);
 
   const bar = $('navBar');
   bar.innerHTML = '';
@@ -589,132 +666,775 @@ function route(viewId){
     b.classList.toggle('active', b.dataset.view === viewId);
   });
   const body = $('pageBody');
-  const renderer = VIEWS[viewId];
-  body.innerHTML = renderer ? renderer() : placeholder('Not found', 'That screen does not exist yet.');
+  body.innerHTML = '<div class="loading-row"><div class="spinner sm"></div> Loading…</div>';
+  const fn = VIEWS[viewId];
+  if (!fn){ body.innerHTML = placeholder('Not found','That screen does not exist yet.'); return; }
+  Promise.resolve(fn(body)).catch(function(err){
+    console.error(err);
+    body.innerHTML = '<div class="panel"><div class="empty"><h4>Could not load this screen</h4><p>' +
+      esc(err && err.message || String(err)) + '</p></div></div>';
+  });
   window.scrollTo({ top:0, behavior:'instant' });
 }
 
-/* ---------------------------------------------------------------------
-   VIEWS
-   Only Overview is live in Step 1. The rest are honest placeholders so
-   you can see the shape of the app before the features land.
-   --------------------------------------------------------------------- */
+function reroute(){ route(session.view); }
+
+/* ---------- stats & filtering ---------- */
+function liveTasks(rows){ return rows.filter(function(t){ return !t.archived; }); }
+
+function computeStats(rows){
+  const s = { overdue:0, today:0, week:0, completed:0, total:0 };
+  liveTasks(rows).forEach(function(t){
+    s.total++;
+    const u = urgency(t.deadline, t.status);
+    if (u.key === 'done'){ s.completed++; return; }
+    if (u.key === 'overdue') s.overdue++;
+    else if (u.key === 'today') s.today++;
+    else if (u.key === 'urgent' || u.key === 'soon') s.week++;
+  });
+  return s;
+}
+
+function applyFilters(rows){
+  const from = filters.from ? startOfDay(new Date(filters.from)) : null;
+  const to   = filters.to   ? startOfDay(new Date(filters.to))   : null;
+  const q    = filters.q.trim().toLowerCase();
+
+  return rows.filter(function(t){
+    if (!filters.archived && t.archived) return false;
+    if (filters.archived && !t.archived) return false;
+    if (filters.firm && t.firmId !== filters.firm) return false;
+    if (filters.person && t.assigneeEmail !== filters.person) return false;
+    if (filters.status && t.status !== filters.status) return false;
+    if (filters.urgency && urgency(t.deadline, t.status).key !== filters.urgency) return false;
+    if (from || to){
+      const d = toDate(t.deadline);
+      if (!d) return false;
+      const dd = startOfDay(d);
+      if (from && dd < from) return false;
+      if (to && dd > to) return false;
+    }
+    if (q){
+      const hay = ((t.title||'') + ' ' + (t.description||'') + ' ' + (t.assigneeName||'') + ' ' + (t.firmName||'')).toLowerCase();
+      if (hay.indexOf(q) === -1) return false;
+    }
+    return true;
+  });
+}
+
+function sortByDeadline(rows){
+  return rows.slice().sort(function(a,b){
+    const da = toDate(a.deadline), dbb = toDate(b.deadline);
+    if (!da && !dbb) return 0;
+    if (!da) return 1;
+    if (!dbb) return -1;
+    return da - dbb;
+  });
+}
+
+/* ---------- render pieces ---------- */
 function placeholder(title, note, step){
-  return '<div class="page-head"><h2>' + esc(title) + '</h2></div>' +
-    '<div class="panel"><div class="empty">' +
-      '<h4>' + esc(title) + ' is not built yet</h4>' +
-      '<p>' + esc(note) + '</p>' +
-      (step ? '<p style="margin-top:12px"><span class="pill pill-orange">Step ' + esc(step) + '</span></p>' : '') +
+  return '<div class="page-head"><div><h2>' + esc(title) + '</h2></div></div>' +
+    '<div class="panel"><div class="empty"><h4>' + esc(title) + ' is not built yet</h4>' +
+    '<p>' + esc(note) + '</p>' +
+    (step ? '<p class="mt16"><span class="pill pill-orange">Step ' + esc(step) + '</span></p>' : '') +
     '</div></div>';
 }
 
-function sectionCard(accent, kicker, title, text){
-  return '<div class="scard a-' + accent + '">' +
-    '<div class="kicker">' + esc(kicker) + '</div>' +
-    '<h3>' + esc(title) + '</h3>' +
-    '<p>' + esc(text) + '</p>' +
+function pill(u){
+  return '<span class="pill ' + u.cls + (u.flash ? ' pill-flash' : '') + '">' + esc(u.label) + '</span>';
+}
+
+function statusPill(status){
+  const s = STATUS[status] || STATUS.not_started;
+  return '<span class="pill ' + s.cls + '">' + esc(s.label) + '</span>';
+}
+
+function statTiles(s){
+  return '<div class="stat-grid">' +
+    '<div class="stat red"><div class="n mono">' + s.overdue + '</div><div class="l">Overdue</div></div>' +
+    '<div class="stat orange"><div class="n mono">' + s.today + '</div><div class="l">Due today</div></div>' +
+    '<div class="stat navy"><div class="n mono">' + s.week + '</div><div class="l">Due this week</div></div>' +
+    '<div class="stat green"><div class="n mono">' + s.completed + '</div><div class="l">Completed</div></div>' +
   '</div>';
 }
 
+function taskRow(t, opts){
+  const u = urgency(t.deadline, t.status);
+  const showActions = opts && opts.actions;
+  const desc = String(t.description || '');
+  return '<tr class="is-' + u.key + '">' +
+    '<td><div class="t-title">' + esc(t.title) + '</div>' +
+      (desc ? '<div class="t-desc">' + esc(desc.slice(0,120)) + (desc.length>120?'…':'') + '</div>' : '') + '</td>' +
+    '<td class="nowrap">' + esc(t.assigneeName || t.assigneeEmail || '—') +
+      '<div class="tiny muted">' + esc(t.firmName || '') + '</div></td>' +
+    '<td class="nowrap">' + fmtDate(t.deadline) + '</td>' +
+    '<td>' + pill(u) + '</td>' +
+    '<td>' + statusPill(t.status) + '</td>' +
+    '<td class="nowrap tiny muted">' + esc(PRIORITY[t.priority] || 'Normal') + '</td>' +
+    (showActions ? '<td><div class="cell-actions">' +
+      '<button class="btn-icon" data-edit="' + esc(t.id) + '">Edit</button>' +
+      '<button class="btn-icon" data-arch="' + esc(t.id) + '">' + (t.archived ? 'Restore' : 'Archive') + '</button>' +
+      '</div></td>' : '') +
+  '</tr>';
+}
+
+function taskTable(rows, opts){
+  if (!rows.length){
+    return '<div class="empty"><h4>Nothing here</h4><p>No tasks match the current filters.</p></div>';
+  }
+  const actions = opts && opts.actions;
+  return '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
+    '<th>Task</th><th>Assigned to</th><th>Deadline</th><th>Urgency</th><th>Status</th><th>Priority</th>' +
+    (actions ? '<th></th>' : '') + '</tr></thead><tbody>' +
+    rows.map(function(t){ return taskRow(t, opts); }).join('') + '</tbody></table></div>';
+}
+
+function scardHtml(accent, kicker, title, text, goTo, goLabel){
+  return '<div class="scard a-' + accent + '">' +
+    '<div class="kicker">' + esc(kicker) + '</div><h3>' + esc(title) + '</h3><p>' + esc(text) + '</p>' +
+    (goTo ? '<div class="foot"><button class="btn btn-ghost btn-sm" data-go="' + esc(goTo) + '">' + esc(goLabel) + '</button></div>' : '') +
+  '</div>';
+}
+
+function personRow(p){
+  return '<div class="person">' +
+    '<div class="avatar">' + esc(initials(p.name)) + '</div>' +
+    '<div><div class="person-name">' + esc(p.name) +
+      (p.role === 'admin' ? ' <span class="pill pill-orange">Admin</span>' : '') +
+      (p.active === false ? ' <span class="pill pill-grey">Inactive</span>' : '') + '</div>' +
+      '<div class="person-mail">' + esc(p.email) + (p.phone ? ' · ' + esc(p.phone) : '') + '</div></div>' +
+    '<div class="spacer"></div>' +
+    '<button class="btn btn-ghost btn-sm" data-editperson="' + esc(p.email) + '">Edit</button>' +
+  '</div>';
+}
+
+/* ---------- views ---------- */
 const VIEWS = {
 
-  home: function(){
-    const p = session.profile;
+  home: async function(body){
     const admin = isAdmin();
+    const p = session.profile;
+    if (admin) await loadDirectory();
+    const rows = await loadTasks();
+    const stats = computeStats(rows);
+    const soon = sortByDeadline(liveTasks(rows).filter(function(t){
+      const k = urgency(t.deadline, t.status).key;
+      return k === 'overdue' || k === 'today' || k === 'urgent' || k === 'soon';
+    })).slice(0, 8);
 
     const cards = admin ? [
-      sectionCard('orange','Step 2','Assign work','Create a task, pick the person, set the deadline. Ordered by urgency across every partner firm.'),
-      sectionCard('navy','Step 3','Partner dashboards','Each member signs in and sees only their own list. Nothing else is visible to them.'),
-      sectionCard('yellow','Step 4','Chase and record','WhatsApp and email buttons with the message pre-written, plus the reply thread against each task.'),
-      sectionCard('red','Step 5','Compliance calendar','ITR, AOC-4, MGT-7A and DIR-3 KYC per client, rolling forward every year.'),
-      sectionCard('green','Step 6','Exports','Excel download of any filtered view for reporting and filing records.')
+      scardHtml('orange','Ready','Assign work','Create a task, pick the person, set the deadline.','tasks','Open all work'),
+      scardHtml('navy','Ready','Partner firms','Add firms and the people inside them. They can sign in immediately.','firms','Manage firms'),
+      scardHtml('yellow','Step 4','Chase and record','WhatsApp and email buttons, plus the reply thread against each task.','',''),
+      scardHtml('red','Step 5','Compliance calendar','ITR, AOC-4, MGT-7A and DIR-3 KYC per client, rolling forward each year.','',''),
+      scardHtml('green','Step 6','Exports','Excel download of any filtered view.','','')
     ].join('') : [
-      sectionCard('orange','Step 3','Your task list','Everything assigned to you, most urgent first, with status you can update yourself.'),
-      sectionCard('navy','Step 4','Attachments and replies','Attach a document to a task and reply to IAMUSAP without leaving the page.')
+      scardHtml('orange','Ready','Your task list','Everything assigned to you, most urgent first.','mytasks','Open my tasks'),
+      scardHtml('navy','Step 3','Status and replies','Update status, attach a document and reply to IAMUSAP.','','')
     ].join('');
 
-    const roleExplainer = admin
-      ? 'You are registered as an <strong>administrator</strong>, so you will see every partner firm, every person and every client once those screens are built.'
-      : 'You are registered under <strong>' + esc(p.firmName || 'your firm') + '</strong>. You will only ever see work assigned to you \u2014 other partners\u2019 tasks are refused by the database itself, not merely hidden.';
-
-    return '' +
-      '<div class="page-head">' +
-        '<h2>' + (admin ? 'Overview' : 'Welcome, ' + esc((p.name || '').split(' ')[0] || 'there')) + '</h2>' +
-        '<p>' + (admin ? 'Signed in as administrator. Feature screens arrive in the next steps.' : 'Your workspace is ready. Task screens arrive in the next step.') + '</p>' +
+    body.innerHTML =
+      '<div class="page-head"><div>' +
+        '<h2>' + (admin ? 'Overview' : 'Welcome, ' + esc((p.name||'').split(' ')[0] || 'there')) + '</h2>' +
+        '<p>' + (admin ? 'Everything assigned across all partner firms.' : 'Work assigned to you by IAMUSAP.') + '</p>' +
+      '</div><div class="spacer"></div>' +
+      (admin ? '<button class="btn btn-primary" id="btnNewTaskHome">+ Assign work</button>' : '') + '</div>' +
+      statTiles(stats) +
+      '<div class="panel mb18"><div class="panel-head"><h3>Needs attention</h3><div class="spacer"></div>' +
+        '<span class="tiny muted">Overdue and due within 7 days</span></div>' +
+        (soon.length ? taskTable(soon, { actions:false })
+          : '<div class="empty"><h4>Nothing urgent</h4><p>No task is overdue or due within the next seven days.</p></div>') +
       '</div>' +
-
-      '<div class="stat-grid">' +
-        '<div class="stat navy"><div class="n mono">—</div><div class="l">Overdue</div></div>' +
-        '<div class="stat orange"><div class="n mono">—</div><div class="l">Due today</div></div>' +
-        '<div class="stat navy"><div class="n mono">—</div><div class="l">Due this week</div></div>' +
-        '<div class="stat orange"><div class="n mono">—</div><div class="l">Completed</div></div>' +
-      '</div>' +
-
-      '<div class="panel" style="margin-bottom:22px">' +
-        '<div class="panel-head"><h3>Sign-in confirmed</h3><div class="spacer"></div>' +
-          '<span class="pill ' + (admin ? 'pill-orange' : 'pill-navy') + '">' + (admin ? 'Administrator' : 'Partner member') + '</span>' +
-        '</div>' +
-        '<div class="panel-body">' +
-          '<dl class="kv">' +
-            '<dt>Name</dt><dd>' + esc(p.name || '—') + '</dd>' +
-            '<dt>Email</dt><dd>' + esc(p.email) + '</dd>' +
-            '<dt>Role</dt><dd>' + esc(session.role) + '</dd>' +
-            '<dt>Firm</dt><dd>' + esc(p.firmName || '—') + '</dd>' +
-            '<dt>Reads used</dt><dd class="mono" id="kvReads">' + meter.reads + '</dd>' +
-          '</dl>' +
-          '<p class="small muted" style="margin-top:16px">' + roleExplainer + '</p>' +
-        '</div>' +
-      '</div>' +
-
-      '<div class="page-head"><h2 style="font-size:19px">Coming next</h2></div>' +
+      '<div class="page-head"><div><h2 style="font-size:19px">Sections</h2></div></div>' +
       '<div class="card-grid">' + cards + '</div>';
+
+    const nb = $('btnNewTaskHome');
+    if (nb) nb.addEventListener('click', function(){ openTaskModal(null); });
+    body.querySelectorAll('[data-go]').forEach(function(b){
+      b.addEventListener('click', function(){ route(b.dataset.go); });
+    });
   },
 
-  tasks:    function(){ return placeholder('All work', 'Every task across all partner firms, ordered by deadline, with filters by firm, person, status and date range.', 2); },
-  firms:    function(){ return placeholder('Partner firms', 'Add partner firms and the people inside them. Everyone added here can sign in with Google straight away.', 2); },
-  clients:  function(){ return placeholder('Clients & compliance', 'Statutory deadlines per client, rolling forward each year, with a one-tap reminder email.', 5); },
-  reports:  function(){ return placeholder('Reports', 'Excel export of any filtered view, plus a monthly summary.', 6); },
-  mytasks:  function(){ return placeholder('My tasks', 'Your assigned work, most urgent first, with status updates and attachments.', 3); },
-  messages: function(){ return placeholder('Messages', 'Notes and replies between you and IAMUSAP, kept against each task.', 4); }
+  tasks: async function(body){
+    if (!isAdmin()){ body.innerHTML = placeholder('All work','Administrators only.'); return; }
+    const dir = await loadDirectory();
+    await loadTasks();
+    body.innerHTML =
+      '<div class="page-head"><div><h2>All work</h2><p>Every task across all partner firms, most urgent first.</p></div>' +
+        '<div class="spacer"></div>' +
+        '<button class="btn btn-ghost" id="btnRefresh">Refresh</button>' +
+        '<button class="btn btn-primary" id="btnNewTask">+ Assign work</button></div>' +
+      '<div id="statHost"></div>' +
+      '<div class="panel"><div class="filters" id="filterBar"></div><div id="tableHost"></div></div>';
+
+    $('btnNewTask').addEventListener('click', function(){ openTaskModal(null); });
+    $('btnRefresh').addEventListener('click', function(){
+      cache.invalidate('tasks');
+      toast('Reloading from the database…');
+      reroute();
+    });
+
+    renderFilterBar(dir);
+    renderWorkTable();
+  },
+
+  mytasks: async function(body){
+    const rows = await loadTasks();
+    const stats = computeStats(rows);
+    const live = sortByDeadline(liveTasks(rows));
+    body.innerHTML =
+      '<div class="page-head"><div><h2>My tasks</h2><p>Assigned to you by IAMUSAP, most urgent first.</p></div></div>' +
+      statTiles(stats) +
+      '<div class="panel"><div class="panel-head"><h3>' + live.length + ' task' + (live.length===1?'':'s') + '</h3></div>' +
+        taskTable(live, { actions:false }) + '</div>' +
+      '<div class="notice mt16"><strong>Status updates arrive in Step 3</strong>' +
+        'This list is read-only for now. Next step adds the buttons to change status, attach a document and reply.</div>';
+  },
+
+  firms: async function(body){
+    if (!isAdmin()){ body.innerHTML = placeholder('Partner firms','Administrators only.'); return; }
+    const dir = await loadDirectory();
+
+    if (!dir.firms.length && !dir.people.length){
+      body.innerHTML =
+        '<div class="page-head"><div><h2>Partner firms</h2><p>Firms and the people inside them.</p></div></div>' +
+        '<div class="panel"><div class="empty"><h4>No firms yet</h4>' +
+          '<p>Add your first partner firm, then add the people inside it. Each person can sign in with Google as soon as they are added.</p>' +
+          '<button class="btn btn-primary" id="btnFirstFirm">+ Add partner firm</button>' +
+          '<p class="tiny mt16">Already created records by hand in Firestore? ' +
+          '<button class="btn btn-ghost btn-sm" id="btnRebuild">Rebuild directory</button></p>' +
+        '</div></div>';
+      $('btnFirstFirm').addEventListener('click', function(){ openFirmModal(null); });
+      $('btnRebuild').addEventListener('click', doRebuild);
+      return;
+    }
+
+    const byFirm = {};
+    dir.people.forEach(function(p){
+      const k = p.firmId || 'unassigned';
+      (byFirm[k] = byFirm[k] || []).push(p);
+    });
+
+    const blocks = dir.firms.map(function(f){
+      const people = byFirm[f.id] || [];
+      return '<div class="firm-card' + (f.id === 'iamusap' ? ' owner' : '') + '">' +
+        '<div class="firm-head"><h3>' + esc(f.name) + '</h3>' +
+          (f.active === false ? '<span class="pill pill-grey">Inactive</span>' : '') +
+          '<span class="pill pill-navy">' + people.length + ' ' + (people.length===1?'person':'people') + '</span>' +
+          '<div class="spacer"></div>' +
+          '<button class="btn btn-ghost btn-sm" data-editfirm="' + esc(f.id) + '">Edit firm</button>' +
+          '<button class="btn btn-primary btn-sm" data-addperson="' + esc(f.id) + '">+ Add person</button></div>' +
+        (people.length ? people.map(personRow).join('')
+          : '<div class="empty" style="padding:24px"><p>Nobody added to this firm yet.</p></div>') +
+      '</div>';
+    }).join('');
+
+    const orphans = byFirm.unassigned || [];
+
+    body.innerHTML =
+      '<div class="page-head"><div><h2>Partner firms</h2><p>Firms and the people inside them. Everyone here can sign in with Google.</p></div>' +
+        '<div class="spacer"></div>' +
+        '<button class="btn btn-ghost" id="btnRebuild">Rebuild directory</button>' +
+        '<button class="btn btn-primary" id="btnAddFirm">+ Add partner firm</button></div>' +
+      blocks +
+      (orphans.length ? '<div class="firm-card"><div class="firm-head"><h3>No firm assigned</h3></div>' +
+        orphans.map(personRow).join('') + '</div>' : '');
+
+    $('btnAddFirm').addEventListener('click', function(){ openFirmModal(null); });
+    $('btnRebuild').addEventListener('click', doRebuild);
+    body.querySelectorAll('[data-editfirm]').forEach(function(b){
+      b.addEventListener('click', function(){ openFirmModal(b.dataset.editfirm); });
+    });
+    body.querySelectorAll('[data-addperson]').forEach(function(b){
+      b.addEventListener('click', function(){ openPersonModal(null, b.dataset.addperson); });
+    });
+    body.querySelectorAll('[data-editperson]').forEach(function(b){
+      b.addEventListener('click', function(){ openPersonModal(b.dataset.editperson, null); });
+    });
+  },
+
+  clients:  function(body){ body.innerHTML = placeholder('Clients & compliance','Statutory deadlines per client, rolling forward each year, with a one-tap reminder email.',5); },
+  reports:  function(body){ body.innerHTML = placeholder('Reports','Excel export of any filtered view, plus a monthly summary.',6); },
+  messages: function(body){ body.innerHTML = placeholder('Messages','Notes and replies between you and IAMUSAP, kept against each task.',4); }
 };
 
-/* ---------------------------------------------------------------------
-   WIRING
-   --------------------------------------------------------------------- */
+/* ---------- work table + filters ---------- */
+function renderFilterBar(dir){
+  const bar = $('filterBar');
+  if (!bar) return;
+
+  const firmOpts = ['<option value="">All firms</option>'].concat(dir.firms.map(function(f){
+    return '<option value="' + esc(f.id) + '"' + (filters.firm===f.id?' selected':'') + '>' + esc(f.name) + '</option>';
+  })).join('');
+
+  const peopleOpts = ['<option value="">Everyone</option>'].concat(
+    dir.people.filter(function(p){ return !filters.firm || p.firmId === filters.firm; }).map(function(p){
+      return '<option value="' + esc(p.email) + '"' + (filters.person===p.email?' selected':'') + '>' + esc(p.name) + '</option>';
+    })).join('');
+
+  bar.innerHTML =
+    '<div class="field"><label>Firm</label><select class="ctl" id="fFirm">' + firmOpts + '</select></div>' +
+    '<div class="field"><label>Person</label><select class="ctl" id="fPerson">' + peopleOpts + '</select></div>' +
+    '<div class="field"><label>Status</label><select class="ctl" id="fStatus"><option value="">Any status</option>' +
+      Object.keys(STATUS).map(function(k){
+        return '<option value="' + k + '"' + (filters.status===k?' selected':'') + '>' + STATUS[k].label + '</option>';
+      }).join('') + '</select></div>' +
+    '<div class="field"><label>Urgency</label><select class="ctl" id="fUrg"><option value="">Any urgency</option>' +
+      '<option value="overdue"' + (filters.urgency==='overdue'?' selected':'') + '>Overdue</option>' +
+      '<option value="today"'   + (filters.urgency==='today'?' selected':'')   + '>Due today</option>' +
+      '<option value="urgent"'  + (filters.urgency==='urgent'?' selected':'')  + '>Within 2 days</option>' +
+      '<option value="soon"'    + (filters.urgency==='soon'?' selected':'')    + '>Within 7 days</option>' +
+      '<option value="later"'   + (filters.urgency==='later'?' selected':'')   + '>Later</option></select></div>' +
+    '<div class="field"><label>From</label><input type="date" class="ctl" id="fFrom" value="' + esc(filters.from) + '"></div>' +
+    '<div class="field"><label>To</label><input type="date" class="ctl" id="fTo" value="' + esc(filters.to) + '"></div>' +
+    '<div class="field"><label>Search</label><input type="search" class="ctl wide" id="fQ" placeholder="Title, person, firm…" value="' + esc(filters.q) + '"></div>' +
+    '<div class="field"><label class="checkline"><input type="checkbox" id="fArch"' + (filters.archived?' checked':'') + '> Archived</label></div>' +
+    '<div class="field"><button class="btn btn-ghost btn-sm" id="fClear">Clear</button></div>';
+
+  function bind(id, key, refreshBar){
+    const el = $(id);
+    if (!el) return;
+    const ev = (el.type === 'search' || el.type === 'text') ? 'input' : 'change';
+    el.addEventListener(ev, function(){
+      filters[key] = (el.type === 'checkbox') ? el.checked : el.value;
+      if (refreshBar){ filters.person = ''; renderFilterBar(cache.directory); }
+      renderWorkTable();
+    });
+  }
+  bind('fFirm','firm',true); bind('fPerson','person'); bind('fStatus','status');
+  bind('fUrg','urgency'); bind('fFrom','from'); bind('fTo','to');
+  bind('fQ','q'); bind('fArch','archived');
+
+  $('fClear').addEventListener('click', function(){
+    filters.firm = filters.person = filters.status = filters.urgency = '';
+    filters.from = filters.to = filters.q = '';
+    filters.archived = false;
+    renderFilterBar(cache.directory);
+    renderWorkTable();
+  });
+}
+
+function renderWorkTable(){
+  const host = $('tableHost');
+  const statHost = $('statHost');
+  if (!host) return;
+  const rows = cache.tasks || [];
+  const shown = sortByDeadline(applyFilters(rows));
+  if (statHost) statHost.innerHTML = statTiles(computeStats(rows));
+  host.innerHTML = taskTable(shown, { actions:true });
+
+  host.querySelectorAll('[data-edit]').forEach(function(b){
+    b.addEventListener('click', function(){ openTaskModal(b.dataset.edit); });
+  });
+  host.querySelectorAll('[data-arch]').forEach(function(b){
+    b.addEventListener('click', function(){ archiveTask(b.dataset.arch); });
+  });
+}
+
+/* ---------- task create / edit ---------- */
+function openTaskModal(taskId){
+  const dir = cache.directory || { firms:[], people:[] };
+  const people = dir.people.filter(function(p){ return p.active !== false; });
+
+  if (!people.length){
+    openModal({
+      title:'No people to assign to', narrow:true,
+      body:'<p class="small">Add a partner firm and at least one person first. Every task must belong to somebody.</p>',
+      foot:'<button class="btn btn-ghost" data-close>Cancel</button>' +
+           '<button class="btn btn-primary" id="goFirms">Go to partner firms</button>',
+      onReady:function(root){
+        root.querySelector('#goFirms').addEventListener('click', function(){ closeModal(); route('firms'); });
+      }
+    });
+    return;
+  }
+
+  const t = taskId ? (cache.tasks || []).find(function(x){ return x.id === taskId; }) : null;
+
+  const peopleOpts = people.map(function(p){
+    return '<option value="' + esc(p.email) + '"' + (t && t.assigneeEmail === p.email ? ' selected' : '') + '>' +
+      esc(p.name) + ' — ' + esc(p.firmName || 'No firm') + '</option>';
+  }).join('');
+
+  openModal({
+    title: t ? 'Edit task' : 'Assign work',
+    body:
+      '<div class="form-field"><label>Task title <span class="req">*</span></label>' +
+        '<input id="tTitle" maxlength="140" placeholder="e.g. GST filing for July" value="' + esc(t ? t.title : '') + '"></div>' +
+      '<div class="form-field"><label>Description</label>' +
+        '<textarea id="tDesc" maxlength="1500" placeholder="What exactly is needed, and any reference numbers.">' + esc(t ? t.description : '') + '</textarea></div>' +
+      '<div class="form-field"><label>Assign to <span class="req">*</span></label>' +
+        '<select id="tWho">' + peopleOpts + '</select>' +
+        '<div class="hint">The firm is filled in automatically from the person.</div></div>' +
+      '<div class="form-row">' +
+        '<div class="form-field"><label>Deadline <span class="req">*</span></label>' +
+          '<input type="date" id="tDue" value="' + esc(t ? toInputDate(t.deadline) : '') + '"></div>' +
+        '<div class="form-field"><label>Priority</label><select id="tPri">' +
+          Object.keys(PRIORITY).map(function(k){
+            return '<option value="' + k + '"' + ((t && t.priority ? t.priority : 'normal') === k ? ' selected' : '') + '>' + PRIORITY[k] + '</option>';
+          }).join('') + '</select></div></div>' +
+      (t ? '<div class="form-field"><label>Status</label><select id="tStatus">' +
+          Object.keys(STATUS).map(function(k){
+            return '<option value="' + k + '"' + (t.status === k ? ' selected' : '') + '>' + STATUS[k].label + '</option>';
+          }).join('') + '</select></div>' : '') +
+      '<div id="tErr"></div>',
+    foot:'<button class="btn btn-ghost" data-close>Cancel</button>' +
+         '<button class="btn btn-primary" id="tSave">' + (t ? 'Save changes' : 'Assign task') + '</button>',
+    onReady:function(root){
+      root.querySelector('#tSave').addEventListener('click', function(){ saveTask(taskId, root); });
+    }
+  });
+}
+
+async function saveTask(taskId, root){
+  const btn = root.querySelector('#tSave');
+  const errBox = root.querySelector('#tErr');
+  const title = root.querySelector('#tTitle').value.trim();
+  const desc  = root.querySelector('#tDesc').value.trim();
+  const who   = root.querySelector('#tWho').value;
+  const due   = root.querySelector('#tDue').value;
+  const pri   = root.querySelector('#tPri').value;
+  const stEl  = root.querySelector('#tStatus');
+
+  if (!title){ errBox.innerHTML = '<div class="notice">Give the task a title.</div>'; return; }
+  if (!who){ errBox.innerHTML = '<div class="notice">Choose who this is for.</div>'; return; }
+  if (!due){ errBox.innerHTML = '<div class="notice">Set a deadline.</div>'; return; }
+
+  const dueDate = startOfDay(new Date(due));
+  if (isNaN(dueDate.getTime())){ errBox.innerHTML = '<div class="notice">That deadline is not a valid date.</div>'; return; }
+
+  const person = (cache.directory.people || []).find(function(p){ return p.email === who; });
+  if (!person){ errBox.innerHTML = '<div class="notice">That person is no longer in the directory. Close and reopen this form.</div>'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const payload = clean({
+    title:title, description:desc,
+    assigneeEmail:person.email, assigneeName:person.name,
+    firmId:person.firmId || '', firmName:person.firmName || '',
+    deadline: TS.fromDate(dueDate),
+    priority: pri || 'normal',
+    updatedAt: FV.serverTimestamp()
+  });
+
+  try {
+    if (taskId){
+      const newStatus = stEl ? stEl.value : 'not_started';
+      payload.status = newStatus;
+      payload.completedDate = newStatus === 'completed' ? TS.fromDate(new Date()) : null;
+      await db.collection('tasks').doc(taskId).update(payload);
+      const local = (cache.tasks || []).find(function(x){ return x.id === taskId; });
+      if (local) Object.assign(local, payload, { deadline: TS.fromDate(dueDate) });
+      toast('Task updated', 'ok');
+    } else {
+      payload.status = 'not_started';
+      payload.completedDate = null;
+      payload.assignedDate = TS.fromDate(new Date());
+      payload.attachments = [];
+      payload.msgCount = 0;
+      payload.archived = false;
+      payload.unreadForAssignee = true;
+      payload.unreadForAdmin = false;
+      payload.createdBy = myEmail();
+      payload.createdAt = FV.serverTimestamp();
+      const ref = await db.collection('tasks').add(payload);
+      const local = Object.assign({}, payload, {
+        id: ref.id, deadline: TS.fromDate(dueDate), assignedDate: TS.fromDate(new Date())
+      });
+      cache.tasks = cache.tasks || [];
+      cache.tasks.push(local);
+      toast('Task assigned to ' + person.name, 'ok');
+    }
+    closeModal();
+    reroute();
+  } catch (err){
+    console.error(err);
+    btn.disabled = false;
+    btn.textContent = taskId ? 'Save changes' : 'Assign task';
+    errBox.innerHTML = '<div class="notice"><strong>Could not save</strong>' + esc(err.message || String(err)) + '</div>';
+  }
+}
+
+function archiveTask(taskId){
+  const t = (cache.tasks || []).find(function(x){ return x.id === taskId; });
+  if (!t) return;
+  const restoring = !!t.archived;
+  confirmDialog(
+    restoring ? 'Restore this task?' : 'Archive this task?',
+    restoring ? 'It will reappear in the main list.'
+      : '"' + t.title + '" will be hidden from the main list. Nothing is deleted — the task and its replies are kept, and you can bring it back with the Archived filter.',
+    restoring ? 'Restore' : 'Archive',
+    async function(){
+      try {
+        await db.collection('tasks').doc(taskId).update({ archived: !restoring, updatedAt: FV.serverTimestamp() });
+        t.archived = !restoring;
+        toast(restoring ? 'Task restored' : 'Task archived', 'ok');
+        renderWorkTable();
+      } catch (err){
+        console.error(err);
+        toast('Could not archive: ' + (err.message || err.code), 'err');
+      }
+    }
+  );
+}
+
+/* ---------- firms ---------- */
+function openFirmModal(firmId){
+  const dir = cache.directory || { firms:[], people:[] };
+  const f = firmId ? dir.firms.find(function(x){ return x.id === firmId; }) : null;
+
+  openModal({
+    title: f ? 'Edit partner firm' : 'Add partner firm', narrow:true,
+    body:
+      '<div class="form-field"><label>Firm name <span class="req">*</span></label>' +
+        '<input id="fName" maxlength="80" placeholder="e.g. Olive Works" value="' + esc(f ? f.name : '') + '"></div>' +
+      '<div class="form-field"><label>Contact email</label>' +
+        '<input id="fMail" type="email" placeholder="optional" value="' + esc(f && f.contactEmail || '') + '"></div>' +
+      '<div class="form-field"><label>Contact phone</label>' +
+        '<input id="fPhone" placeholder="optional" value="' + esc(f && f.contactPhone || '') + '"></div>' +
+      (f ? '<div class="form-field"><label>Status</label><select id="fActive">' +
+        '<option value="yes"' + (f.active !== false ? ' selected' : '') + '>Active</option>' +
+        '<option value="no"'  + (f.active === false ? ' selected' : '') + '>Inactive</option></select>' +
+        '<div class="hint">Marking a firm inactive does not remove its people or their tasks.</div></div>' : '') +
+      '<div id="fErr"></div>',
+    foot:'<button class="btn btn-ghost" data-close>Cancel</button>' +
+         '<button class="btn btn-primary" id="fSave">' + (f ? 'Save changes' : 'Add firm') + '</button>',
+    onReady:function(root){
+      root.querySelector('#fSave').addEventListener('click', function(){ saveFirm(firmId, root); });
+    }
+  });
+}
+
+async function saveFirm(firmId, root){
+  const btn = root.querySelector('#fSave');
+  const errBox = root.querySelector('#fErr');
+  const name  = root.querySelector('#fName').value.trim();
+  const mail  = root.querySelector('#fMail').value.trim();
+  const phone = root.querySelector('#fPhone').value.trim();
+  const actEl = root.querySelector('#fActive');
+
+  if (!name){ errBox.innerHTML = '<div class="notice">Give the firm a name.</div>'; return; }
+
+  const dir = cache.directory;
+  const id = firmId || slugify(name);
+
+  if (!firmId && dir.firms.some(function(x){ return x.id === id; })){
+    errBox.innerHTML = '<div class="notice">A firm with a very similar name already exists.</div>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const active = actEl ? actEl.value === 'yes' : true;
+  const payload = clean({
+    name:name, contactEmail:mail, contactPhone:phone,
+    active:active, updatedAt: FV.serverTimestamp()
+  });
+  if (!firmId) payload.createdAt = FV.serverTimestamp();
+
+  try {
+    await db.collection('firms').doc(id).set(payload, { merge:true });
+
+    const entry = { id:id, name:name, active:active, contactEmail:mail, contactPhone:phone };
+    const idx = dir.firms.findIndex(function(x){ return x.id === id; });
+    if (idx >= 0) dir.firms[idx] = entry; else dir.firms.push(entry);
+
+    dir.people.forEach(function(p){ if (p.firmId === id) p.firmName = name; });
+
+    await saveDirectory();
+    toast(firmId ? 'Firm updated' : 'Firm added', 'ok');
+    closeModal();
+    reroute();
+  } catch (err){
+    console.error(err);
+    btn.disabled = false;
+    btn.textContent = firmId ? 'Save changes' : 'Add firm';
+    errBox.innerHTML = '<div class="notice"><strong>Could not save</strong>' + esc(err.message || String(err)) + '</div>';
+  }
+}
+
+/* ---------- people ---------- */
+function openPersonModal(email, presetFirmId){
+  const dir = cache.directory || { firms:[], people:[] };
+  const p = email ? dir.people.find(function(x){ return x.email === email; }) : null;
+
+  const firmOpts = dir.firms.map(function(f){
+    const sel = ((p ? p.firmId : presetFirmId) === f.id) ? ' selected' : '';
+    return '<option value="' + esc(f.id) + '"' + sel + '>' + esc(f.name) + '</option>';
+  }).join('');
+
+  openModal({
+    title: p ? 'Edit person' : 'Add person', narrow:true,
+    body:
+      '<div class="form-field"><label>Full name <span class="req">*</span></label>' +
+        '<input id="pName" maxlength="80" placeholder="e.g. Banupriya N" value="' + esc(p ? p.name : '') + '"></div>' +
+      '<div class="form-field"><label>Google email <span class="req">*</span></label>' +
+        '<input id="pMail" type="email" placeholder="the address they sign in with" value="' + esc(p ? p.email : '') + '"' + (p ? ' disabled' : '') + '>' +
+        '<div class="hint">' + (p ? 'The sign-in address cannot be changed. Deactivate this person and add a new one instead.'
+                                  : 'Must be the exact Google account they will use. Anything else and sign-in is refused.') + '</div></div>' +
+      '<div class="form-field"><label>Partner firm <span class="req">*</span></label>' +
+        '<select id="pFirm">' + firmOpts + '</select></div>' +
+      '<div class="form-row">' +
+        '<div class="form-field"><label>Role</label><select id="pRole">' +
+          '<option value="partner"' + (!p || p.role !== 'admin' ? ' selected' : '') + '>Partner member</option>' +
+          '<option value="admin"'   + (p && p.role === 'admin' ? ' selected' : '') + '>IAMUSAP admin</option>' +
+          '</select><div class="hint">Admins see everything.</div></div>' +
+        '<div class="form-field"><label>Status</label><select id="pActive">' +
+          '<option value="yes"' + (!p || p.active !== false ? ' selected' : '') + '>Active</option>' +
+          '<option value="no"'  + (p && p.active === false ? ' selected' : '') + '>Inactive</option></select></div></div>' +
+      '<div class="form-field"><label>Phone / WhatsApp</label>' +
+        '<input id="pPhone" placeholder="e.g. +91 98765 43210" value="' + esc(p && p.phone || '') + '">' +
+        '<div class="hint">Used for the WhatsApp button in Step 4. Include the country code.</div></div>' +
+      '<div id="pErr"></div>',
+    foot:'<button class="btn btn-ghost" data-close>Cancel</button>' +
+         '<button class="btn btn-primary" id="pSave">' + (p ? 'Save changes' : 'Add person') + '</button>',
+    onReady:function(root){
+      root.querySelector('#pSave').addEventListener('click', function(){ savePerson(email, root); });
+    }
+  });
+}
+
+async function savePerson(existingEmail, root){
+  const btn = root.querySelector('#pSave');
+  const errBox = root.querySelector('#pErr');
+  const name = root.querySelector('#pName').value.trim();
+  const mail = (existingEmail || root.querySelector('#pMail').value).trim().toLowerCase();
+  const firmId = root.querySelector('#pFirm').value;
+  const role = root.querySelector('#pRole').value;
+  const active = root.querySelector('#pActive').value === 'yes';
+  const phone = root.querySelector('#pPhone').value.trim();
+
+  if (!name){ errBox.innerHTML = '<div class="notice">Enter their name.</div>'; return; }
+  if (!validEmail(mail)){ errBox.innerHTML = '<div class="notice">That does not look like a valid email address.</div>'; return; }
+  if (!firmId){ errBox.innerHTML = '<div class="notice">Choose a firm.</div>'; return; }
+
+  const dir = cache.directory;
+  if (!existingEmail && dir.people.some(function(x){ return x.email === mail; })){
+    errBox.innerHTML = '<div class="notice">That email is already registered.</div>';
+    return;
+  }
+  if (mail === myEmail() && (role !== 'admin' || !active)){
+    errBox.innerHTML = '<div class="notice"><strong>Not allowed</strong>You cannot remove your own admin access or deactivate yourself — you would be locked out of the app.</div>';
+    return;
+  }
+
+  const firm = dir.firms.find(function(f){ return f.id === firmId; });
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const payload = clean({
+    email:mail, name:name, role:role,
+    firmId:firmId, firmName: firm ? firm.name : '',
+    phone:phone, active:active,
+    updatedAt: FV.serverTimestamp()
+  });
+  if (!existingEmail) payload.createdAt = FV.serverTimestamp();
+
+  try {
+    await db.collection('users').doc(mail).set(payload, { merge:true });
+
+    const entry = {
+      email:mail, name:name, role:role, firmId:firmId,
+      firmName: firm ? firm.name : '', phone:phone, active:active
+    };
+    const idx = dir.people.findIndex(function(x){ return x.email === mail; });
+    if (idx >= 0) dir.people[idx] = entry; else dir.people.push(entry);
+
+    await saveDirectory();
+    toast(existingEmail ? 'Person updated' : name + ' can now sign in', 'ok');
+    closeModal();
+    reroute();
+  } catch (err){
+    console.error(err);
+    btn.disabled = false;
+    btn.textContent = existingEmail ? 'Save changes' : 'Add person';
+    errBox.innerHTML = '<div class="notice"><strong>Could not save</strong>' + esc(err.message || String(err)) + '</div>';
+  }
+}
+
+async function saveDirectory(){
+  const dir = cache.directory;
+  await db.collection('meta').doc('directory').set({
+    firms: dir.firms, people: dir.people, updatedAt: FV.serverTimestamp()
+  });
+}
+
+function doRebuild(){
+  confirmDialog('Rebuild the directory?',
+    'This reads every firm and person record and rewrites the cached list. Use it if this screen looks out of step with Firestore. It costs one read per record, so do it rarely.',
+    'Rebuild',
+    async function(){
+      try {
+        await rebuildDirectory();
+        toast('Directory rebuilt', 'ok');
+        reroute();
+      } catch (err){
+        console.error(err);
+        toast('Rebuild failed: ' + (err.message || err.code), 'err');
+      }
+    });
+}
+
+/* ---------- wiring ---------- */
 $('btnSignin').addEventListener('click', signIn);
 $('btnSignout').addEventListener('click', signOut);
 $('btnBlockedOut').addEventListener('click', signOut);
-$('btnBlockedRetry').addEventListener('click', function(){
-  cache.invalidate('profile');
-  location.reload();
-});
+$('btnBlockedRetry').addEventListener('click', function(){ cache.invalidate('profile'); location.reload(); });
 
-/* ---------------------------------------------------------------------
-   SELF-TEST — runs once in the console at load.
-   Confirms the date and urgency logic before any real data exists.
-   --------------------------------------------------------------------- */
+/* ---------- self-test ---------- */
 (function selfTest(){
-  const day = 86400000;
-  const now = Date.now();
+  const day = 86400000, now = Date.now();
   const cases = [
-    [new Date(now - 3*day), 'not_started', 'overdue'],
-    [new Date(now),         'not_started', 'today'  ],
-    [new Date(now + 2*day), 'in_progress', 'urgent' ],
-    [new Date(now + 5*day), 'not_started', 'soon'   ],
-    [new Date(now + 30*day),'not_started', 'later'  ],
-    [new Date(now - 3*day), 'completed',   'done'   ],
-    [null,                  'not_started', 'none'   ]
+    [new Date(now - 3*day),'not_started','overdue'],
+    [new Date(now),'not_started','today'],
+    [new Date(now + 2*day),'in_progress','urgent'],
+    [new Date(now + 5*day),'not_started','soon'],
+    [new Date(now + 30*day),'not_started','later'],
+    [new Date(now - 3*day),'completed','done'],
+    [null,'not_started','none']
   ];
   let pass = 0;
   cases.forEach(function(c){
     const got = urgency(c[0], c[1]).key;
-    if (got === c[2]) pass++;
-    else console.warn('Urgency test failed:', c[0], c[1], 'expected', c[2], 'got', got);
+    if (got === c[2]) pass++; else console.warn('Urgency failed:', c, 'got', got);
   });
-  const nc = nextComplianceDate(10, 31);
-  const ok = nc >= startOfDay(new Date());
-  console.log('IAMUSAP self-test: urgency ' + pass + '/' + cases.length +
-              ', next ITR date ' + fmtDate(nc) + ' ' + (ok ? 'OK' : 'FAILED'));
+
+  const savedRole = session.role, savedUser = session.user;
+  session.role = 'partner';
+  session.user = { email:'Test.Person@Example.COM' };
+  const scoped = myEmail() === 'test.person@example.com';
+  session.role = savedRole;
+  session.user = savedUser;
+
+  const sample = [
+    { id:'1', title:'GST filing',   assigneeEmail:'a@x.com', firmId:'olive',   status:'not_started', deadline:new Date(now + day) },
+    { id:'2', title:'IPR document', assigneeEmail:'b@x.com', firmId:'mission', status:'completed',   deadline:new Date(now - day) },
+    { id:'3', title:'Site visit',   assigneeEmail:'a@x.com', firmId:'olive',   status:'blocked',     deadline:new Date(now + 40*day), archived:true }
+  ];
+  const saved = JSON.parse(JSON.stringify(filters));
+  filters.firm='olive'; filters.person=''; filters.status=''; filters.urgency='';
+  filters.from=''; filters.to=''; filters.q=''; filters.archived=false;
+  const f1 = applyFilters(sample).length === 1;
+  filters.firm=''; filters.q='ipr';
+  const f2 = applyFilters(sample).length === 1;
+  filters.q=''; filters.archived=true;
+  const f3 = applyFilters(sample).length === 1;
+  Object.assign(filters, saved);
+
+  const st = computeStats(sample);
+  const s1 = st.completed === 1 && st.overdue === 0 && st.total === 2;
+  const sorted = sortByDeadline(sample);
+  const s2 = sorted[0].id === '2';
+
+  console.log('IAMUSAP self-test — urgency ' + pass + '/' + cases.length +
+    ' | email scoping ' + (scoped ? 'OK' : 'FAILED') +
+    ' | filters ' + ((f1 && f2 && f3) ? 'OK' : 'FAILED') +
+    ' | stats ' + (s1 ? 'OK' : 'FAILED') +
+    ' | sort ' + (s2 ? 'OK' : 'FAILED') +
+    ' | next ITR ' + fmtDate(nextComplianceDate(10,31)));
 })();
 </script>
 </body>
