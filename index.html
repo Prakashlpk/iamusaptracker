@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IAMUSAP Ventures — Work &amp; Compliance Tracker</title>
+<title>IAMUSAP Tracker v7</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -99,21 +99,6 @@ input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 .page-head h2{font-size:26px;font-weight:700}
 .page-head p{color:var(--muted);font-size:14px;margin-top:4px}
 
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:18px}
-.scard{background:var(--white);border-radius:var(--r-md);padding:20px 22px;border-left:5px solid var(--navy-600);
-  box-shadow:var(--shadow);display:flex;flex-direction:column;gap:7px;
-  transition:transform .12s ease,box-shadow .12s ease}
-.scard:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(14,35,56,.07),0 14px 34px rgba(14,35,56,.11)}
-.scard.a-orange{border-left-color:var(--orange-500)}
-.scard.a-navy{border-left-color:var(--navy-600)}
-.scard.a-red{border-left-color:var(--red-500)}
-.scard.a-green{border-left-color:var(--green-600)}
-.scard.a-yellow{border-left-color:var(--yellow-500)}
-.scard h3{font-size:16.5px;font-weight:700}
-.scard p{font-size:13.5px;color:var(--muted)}
-.scard .kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--navy-600)}
-.scard.a-orange .kicker{color:var(--orange-600)}
-.scard .foot{margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
 .stat{border-radius:var(--r-md);padding:16px 18px;color:#fff;transition:transform .12s ease}
@@ -152,7 +137,12 @@ table.tbl tr.is-urgent td:first-child{box-shadow:inset 3px 0 0 var(--red-500)}
 table.tbl tr.is-soon td:first-child{box-shadow:inset 3px 0 0 var(--yellow-500)}
 .t-title{font-weight:700;color:var(--ink)}
 .t-desc{color:var(--muted);font-size:12.5px;margin-top:2px;max-width:340px}
-.cell-actions{display:flex;gap:4px;justify-content:flex-end}
+.cell-actions{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap}
+.act-wa{color:#128C7E;font-weight:700}
+.act-wa:hover{background:#E4F5F1;color:#0B6B5F}
+.act-mail{color:var(--navy-700);font-weight:700}
+.act-msg{color:var(--orange-600);font-weight:700}
+.act-msg:hover{background:var(--orange-050);color:var(--orange-600)}
 
 .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;
   font-size:11.5px;font-weight:700;white-space:nowrap}
@@ -183,9 +173,6 @@ table.tbl tr.is-soon td:first-child{box-shadow:inset 3px 0 0 var(--yellow-500)}
 .notice{background:var(--orange-050);border-left:4px solid var(--orange-500);border-radius:var(--r-sm);
   padding:14px 16px;font-size:13.5px}
 .notice strong{display:block;margin-bottom:3px;font-weight:700}
-.kv{display:grid;grid-template-columns:130px 1fr;gap:9px 14px;font-size:13.5px}
-.kv dt{color:var(--muted);font-weight:600}
-.kv dd{font-weight:600;word-break:break-word}
 code.inline{background:var(--navy-050);padding:2px 7px;border-radius:5px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace}
 
 #blockedView{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
@@ -275,8 +262,6 @@ code.inline{background:var(--navy-050);padding:2px 7px;border-radius:5px;font-si
   .who-name,.logo .sub{display:none}
   .nav{top:56px}
   .page-head h2{font-size:22px}
-  .kv{grid-template-columns:1fr;gap:2px 0}
-  .kv dd{margin-bottom:8px}
   .form-row{grid-template-columns:1fr}
   .ctl{min-width:120px}
   .t-desc{display:none}
@@ -507,6 +492,7 @@ const COMPLIANCE_CATALOG = [
 ];
 
 const APP_URL = 'https://iamusaptracker.vercel.app';
+const APP_VERSION = 'v7';
 
 /* ---------- contact links ----------
    These build a link that OPENS WhatsApp or the mail app with the message
@@ -733,18 +719,20 @@ function confirmDialog(title, message, confirmLabel, onConfirm){
 /* ---------- shell ---------- */
 const NAV = {
   admin: [
-    { id:'home', label:'Overview' }, { id:'tasks', label:'All work' },
+    { id:'home', label:'Dashboard' }, { id:'tasks', label:'All work' },
     { id:'firms', label:'Partner firms' }, { id:'clients', label:'Clients & compliance' },
     { id:'reports', label:'Reports' }
   ],
   partner: [
-    { id:'home', label:'Overview' }, { id:'mytasks', label:'My tasks' },
+    { id:'home', label:'Dashboard' }, { id:'mytasks', label:'My tasks' },
     { id:'messages', label:'Messages' }
   ]
 };
 
 function startApp(){
   const p = session.profile;
+  const sub = document.querySelector('.logo .sub');
+  if (sub) sub.textContent = 'Work & Compliance Tracker · ' + APP_VERSION;
   $('uName').textContent = p.name || p.email;
   $('uRole').textContent = isAdmin() ? 'IAMUSAP Admin' : (p.firmName || 'Partner');
   const av = $('uAvatar');
@@ -885,36 +873,57 @@ function taskRow(t, opts){
     '<td>' + pill(u) + '</td>' +
     '<td>' + statusPill(t.status) + '</td>' +
     '<td class="nowrap tiny muted">' + esc(PRIORITY[t.priority] || 'Normal') + '</td>' +
-    (showActions ? '<td><div class="cell-actions">' +
-      '<button class="btn-icon" data-edit="' + esc(t.id) + '">Edit</button>' +
-      '<button class="btn-icon" data-arch="' + esc(t.id) + '">' + (t.archived ? 'Restore' : 'Archive') + '</button>' +
-      '</div></td>' : '') +
+    '<td><div class="cell-actions">' + rowActionsHtml(t, showActions) + '</div></td>' +
   '</tr>';
+}
+
+/* Contact buttons live on the row itself — one tap from the list, no
+   need to open the task first. Admins get WhatsApp and email (which open
+   the app with the message already written); everyone gets Message,
+   which posts straight into the in-app thread. */
+function rowActionsHtml(t, withEdit){
+  let html = '';
+  if (isAdmin()){
+    const person = (cache.directory && cache.directory.people || [])
+      .find(function(p){ return p.email === t.assigneeEmail; }) || {};
+    if (phoneDigits(person.phone)){
+      html += '<button class="btn-icon act-wa" data-wa="' + esc(t.id) + '" title="Open WhatsApp with the reminder written">WhatsApp</button>';
+    }
+    html += '<button class="btn-icon act-mail" data-mail="' + esc(t.id) + '" title="Open email with the reminder written">Email</button>';
+  }
+  html += '<button class="btn-icon act-msg" data-msg="' + esc(t.id) + '" title="Post a message inside the app">' +
+    (isAdmin() ? 'Message' : 'Reply') + '</button>';
+  if (withEdit){
+    html += '<button class="btn-icon" data-edit="' + esc(t.id) + '">Edit</button>' +
+      '<button class="btn-icon" data-arch="' + esc(t.id) + '">' + (t.archived ? 'Restore' : 'Archive') + '</button>';
+  }
+  return html;
 }
 
 function taskTable(rows, opts){
   if (!rows.length){
     return '<div class="empty"><h4>Nothing here</h4><p>No tasks match the current filters.</p></div>';
   }
-  const actions = opts && opts.actions;
   return '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
     '<th>Task</th><th>Assigned to</th><th>Deadline</th><th>Urgency</th><th>Status</th><th>Priority</th>' +
-    (actions ? '<th></th>' : '') + '</tr></thead><tbody>' +
+    '<th>Contact</th></tr></thead><tbody>' +
     rows.map(function(t){ return taskRow(t, opts); }).join('') + '</tbody></table></div>';
 }
 
-/* Every table renders Open buttons; this wires them wherever they appear. */
+/* Every table renders Open and contact buttons; this wires them all. */
 function wireTaskOpen(container){
   container.querySelectorAll('[data-open]').forEach(function(b){
     b.addEventListener('click', function(){ openTaskDetail(b.dataset.open); });
   });
-}
-
-function scardHtml(accent, kicker, title, text, goTo, goLabel){
-  return '<div class="scard a-' + accent + '">' +
-    '<div class="kicker">' + esc(kicker) + '</div><h3>' + esc(title) + '</h3><p>' + esc(text) + '</p>' +
-    (goTo ? '<div class="foot"><button class="btn btn-ghost btn-sm" data-go="' + esc(goTo) + '">' + esc(goLabel) + '</button></div>' : '') +
-  '</div>';
+  container.querySelectorAll('[data-msg]').forEach(function(b){
+    b.addEventListener('click', function(){ openQuickMessage(b.dataset.msg); });
+  });
+  container.querySelectorAll('[data-wa]').forEach(function(b){
+    b.addEventListener('click', function(){ chaseFromRow(b.dataset.wa, 'whatsapp'); });
+  });
+  container.querySelectorAll('[data-mail]').forEach(function(b){
+    b.addEventListener('click', function(){ chaseFromRow(b.dataset.mail, 'email'); });
+  });
 }
 
 function personRow(p){
@@ -938,43 +947,43 @@ const VIEWS = {
     if (admin) await loadDirectory();
     const rows = await loadTasks();
     const stats = computeStats(rows);
-    const soon = sortByDeadline(liveTasks(rows).filter(function(t){
+    const open = sortByDeadline(liveTasks(rows).filter(function(t){
+      return t.status !== 'completed';
+    }));
+    const soon = open.filter(function(t){
       const k = urgency(t.deadline, t.status).key;
       return k === 'overdue' || k === 'today' || k === 'urgent' || k === 'soon';
-    })).slice(0, 8);
-
-    const cards = admin ? [
-      scardHtml('orange','Ready','Assign work','Create a task, pick the person, set the deadline.','tasks','Open all work'),
-      scardHtml('navy','Ready','Partner firms','Add firms and the people inside them. They can sign in immediately.','firms','Manage firms'),
-      scardHtml('yellow','Ready','Chase and record','WhatsApp and email with the message pre-written, plus a full reply thread.','tasks','Open a task'),
-      scardHtml('red','Ready','Compliance calendar','ITR, AOC-4, MGT-7A and DIR-3 KYC per client, rolling forward each year.','clients','Open compliance'),
-      scardHtml('green','Ready','Exports','Excel download of any filtered view.','reports','Open reports')
-    ].join('') : [
-      scardHtml('orange','Ready','Your task list','Everything assigned to you, most urgent first.','mytasks','Open my tasks'),
-      scardHtml('navy','Ready','Status and replies','Update status, attach a document and reply to IAMUSAP.','messages','Open messages')
-    ].join('');
+    });
 
     body.innerHTML =
       '<div class="page-head"><div>' +
-        '<h2>' + (admin ? 'Overview' : 'Welcome, ' + esc((p.name||'').split(' ')[0] || 'there')) + '</h2>' +
+        '<h2>' + (admin ? 'Dashboard' : 'Welcome, ' + esc((p.name||'').split(' ')[0] || 'there')) + '</h2>' +
         '<p>' + (admin ? 'Everything assigned across all partner firms.' : 'Work assigned to you by IAMUSAP.') + '</p>' +
       '</div><div class="spacer"></div>' +
       (admin ? '<button class="btn btn-primary" id="btnNewTaskHome">+ Assign work</button>' : '') + '</div>' +
       statTiles(stats) +
+
       '<div class="panel mb18"><div class="panel-head"><h3>Needs attention</h3><div class="spacer"></div>' +
         '<span class="tiny muted">Overdue and due within 7 days</span></div>' +
-        (soon.length ? taskTable(soon, { actions:false })
+        (soon.length ? taskTable(soon, { actions: admin })
           : '<div class="empty"><h4>Nothing urgent</h4><p>No task is overdue or due within the next seven days.</p></div>') +
       '</div>' +
-      '<div class="page-head"><div><h2 style="font-size:19px">Sections</h2></div></div>' +
-      '<div class="card-grid">' + cards + '</div>';
+
+      '<div class="panel"><div class="panel-head"><h3>All open work</h3><div class="spacer"></div>' +
+        '<span class="tiny muted">' + open.length + ' not yet completed</span></div>' +
+        (open.length ? taskTable(open, { actions: admin })
+          : '<div class="empty"><h4>Nothing open</h4><p>Everything assigned has been completed.</p></div>') +
+      '</div>';
 
     const nb = $('btnNewTaskHome');
     if (nb) nb.addEventListener('click', function(){ openTaskModal(null); });
-    body.querySelectorAll('[data-go]').forEach(function(b){
-      b.addEventListener('click', function(){ route(b.dataset.go); });
-    });
     wireTaskOpen(body);
+    body.querySelectorAll('[data-edit]').forEach(function(b){
+      b.addEventListener('click', function(){ openTaskModal(b.dataset.edit); });
+    });
+    body.querySelectorAll('[data-arch]').forEach(function(b){
+      b.addEventListener('click', function(){ archiveTask(b.dataset.arch); });
+    });
   },
 
   tasks: async function(body){
@@ -1923,8 +1932,83 @@ function chaseSectionHtml(t){
   '</div>';
 }
 
-/* Opens the channel AND records that the nudge went out, so the thread
-   shows a complete history without you having to remember. */
+/* Fired from a row: opens WhatsApp or email with the reminder written,
+   and records the nudge in the task's thread so the history is complete. */
+async function chaseFromRow(taskId, channel){
+  const t = (cache.tasks || []).find(function(x){ return x.id === taskId; });
+  if (!t){ toast('That task is not loaded. Refresh and try again.','err'); return; }
+
+  const person = (cache.directory && cache.directory.people || [])
+    .find(function(p){ return p.email === t.assigneeEmail; }) || {};
+  const text = taskReminderText(t);
+
+  let url;
+  if (channel === 'whatsapp'){
+    url = waLink(person.phone, text);
+    if (!url){ toast('No phone number saved for ' + (t.assigneeName || 'this person') + '. Add one under Partner firms.','err'); return; }
+  } else {
+    url = mailLink(t.assigneeEmail, 'Reminder: ' + t.title + ' — due ' + fmtDate(t.deadline), text);
+    if (!url){ toast('No email address for this person.','err'); return; }
+  }
+
+  window.open(url, '_blank', 'noopener');
+
+  try {
+    await addThreadMessage(t, { body:text, channel:channel, direction:'outbound', loggedManually:true });
+    toast(channel === 'whatsapp' ? 'WhatsApp opened — nudge logged' : 'Email opened — nudge logged', 'ok');
+    if (session.view === 'tasks') renderWorkTable();
+  } catch (err){
+    console.error(err);
+    toast('Opened, but could not log it: ' + (err.message || err.code), 'err');
+  }
+}
+
+/* In-app message straight from the row — no sending, it just appears in
+   the other person's dashboard. Works the same for admin and partner. */
+function openQuickMessage(taskId){
+  const t = (cache.tasks || []).find(function(x){ return x.id === taskId; });
+  if (!t){ toast('That task is not loaded. Refresh and try again.','err'); return; }
+  const to = isAdmin() ? firstName(t.assigneeName) : 'IAMUSAP';
+
+  openModal({
+    title:'Message about “' + t.title + '”', narrow:true,
+    body:
+      '<p class="small muted">This posts inside the app. ' + esc(to) +
+        ' sees it in their dashboard immediately — nothing to send.</p>' +
+      '<div class="form-field"><label>Message <span class="req">*</span></label>' +
+        '<textarea id="qBody" placeholder="Type your message to ' + esc(to) + '…"></textarea></div>' +
+      '<div id="qErr"></div>',
+    foot:'<button class="btn btn-ghost" data-close>Cancel</button>' +
+         '<button class="btn btn-ghost" id="qOpenFull">Open full task</button>' +
+         '<button class="btn btn-primary" id="qSend">Post message</button>',
+    onReady:function(root){
+      root.querySelector('#qOpenFull').addEventListener('click', function(){
+        closeModal();
+        openTaskDetail(taskId);
+      });
+      root.querySelector('#qSend').addEventListener('click', async function(){
+        const btn = root.querySelector('#qSend');
+        const body = root.querySelector('#qBody').value.trim();
+        if (!body){ root.querySelector('#qErr').innerHTML = '<div class="notice">Type a message first.</div>'; return; }
+        btn.disabled = true;
+        btn.textContent = 'Posting…';
+        try {
+          await addThreadMessage(t, { body:body, channel:'app', direction: isAdmin() ? 'outbound' : 'inbound' });
+          toast('Message posted — ' + to + ' will see it', 'ok');
+          closeModal();
+          reroute();
+        } catch (err){
+          console.error(err);
+          btn.disabled = false;
+          btn.textContent = 'Post message';
+          root.querySelector('#qErr').innerHTML = '<div class="notice"><strong>Could not post</strong>' + esc(err.message || String(err)) + '</div>';
+        }
+      });
+    }
+  });
+}
+
+/* Same thing, fired from inside the open task rather than a row. */
 async function chaseVia(root, t, channel){
   const person = (cache.directory && cache.directory.people || [])
     .find(function(p){ return p.email === t.assigneeEmail; }) || {};
