@@ -495,6 +495,79 @@ const STATUS = {
 };
 const PRIORITY = { low:'Low', normal:'Normal', high:'High' };
 
+/* Standard Indian statutory items, offered when adding a client.
+   Stored as month + day so they roll forward every year by themselves. */
+const COMPLIANCE_CATALOG = [
+  { code:'ITR',       label:'Income Tax Return',            month:10, day:31 },
+  { code:'AOC-4',     label:'AOC-4 (Financial Statements)', month:10, day:30 },
+  { code:'MGT-7A',    label:'MGT-7A (Annual Return)',       month:11, day:29 },
+  { code:'DIR-3-KYC', label:'DIR-3 KYC',                    month:6,  day:30 },
+  { code:'GSTR-9',    label:'GSTR-9 (Annual GST Return)',   month:12, day:31 },
+  { code:'ADT-1',     label:'ADT-1 (Auditor Appointment)',  month:10, day:14 }
+];
+
+const APP_URL = 'https://iamusaptracker.vercel.app';
+
+/* ---------- contact links ----------
+   These build a link that OPENS WhatsApp or the mail app with the message
+   already written. The person still taps send. A browser cannot send on
+   its own, and it cannot read replies back — that is what the "log a
+   reply" box and the in-app thread are for. */
+function phoneDigits(raw){
+  let d = String(raw || '').replace(/\D/g,'');
+  if (!d) return '';
+  if (d.length === 10) d = '91' + d;              // bare Indian mobile
+  if (d.length === 11 && d.charAt(0) === '0') d = '91' + d.slice(1);
+  return d;
+}
+
+function waLink(phone, text){
+  const d = phoneDigits(phone);
+  if (!d) return '';
+  return 'https://wa.me/' + d + '?text=' + encodeURIComponent(text);
+}
+
+function mailLink(email, subject, body){
+  if (!email) return '';
+  return 'mailto:' + encodeURIComponent(email) +
+    '?subject=' + encodeURIComponent(subject) +
+    '&body=' + encodeURIComponent(body);
+}
+
+function firstName(name){ return String(name || '').trim().split(/\s+/)[0] || 'there'; }
+
+function taskReminderText(t){
+  const u = urgency(t.deadline, t.status);
+  return 'Hello ' + firstName(t.assigneeName) + ',\n\n' +
+    'A reminder from IAMUSAP Ventures about: ' + t.title + '\n' +
+    'Deadline: ' + fmtDate(t.deadline) + ' (' + u.label + ')\n' +
+    'Current status: ' + (STATUS[t.status] || STATUS.not_started).label + '\n\n' +
+    (t.description ? t.description + '\n\n' : '') +
+    'Please update it here: ' + APP_URL + '\n\n' +
+    'Thank you,\nIAMUSAP Ventures';
+}
+
+function complianceReminderText(client, item, due){
+  return 'Dear ' + (client.name || 'Sir/Madam') + ',\n\n' +
+    'This is a reminder from IAMUSAP Ventures regarding an upcoming statutory due date.\n\n' +
+    'Compliance: ' + item.label + (item.code ? ' (' + item.code + ')' : '') + '\n' +
+    'Due date: ' + fmtDate(due) + '\n' +
+    (client.company ? 'Entity: ' + client.company + '\n' : '') + '\n' +
+    'Kindly share the required documents at the earliest so the filing can be completed on time.\n\n' +
+    'Regards,\nIAMUSAP Ventures';
+}
+
+function loadScript(src){
+  return new Promise(function(resolve, reject){
+    if (document.querySelector('script[src="' + src + '"]')) return resolve();
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = function(){ reject(new Error('Could not load ' + src)); };
+    document.head.appendChild(s);
+  });
+}
+
 /* ---------- data layer ---------- */
 async function loadProfile(email){
   if (cache.profile) return cache.profile;
@@ -873,12 +946,12 @@ const VIEWS = {
     const cards = admin ? [
       scardHtml('orange','Ready','Assign work','Create a task, pick the person, set the deadline.','tasks','Open all work'),
       scardHtml('navy','Ready','Partner firms','Add firms and the people inside them. They can sign in immediately.','firms','Manage firms'),
-      scardHtml('yellow','Step 4','Chase and record','WhatsApp and email buttons, plus the reply thread against each task.','',''),
-      scardHtml('red','Step 5','Compliance calendar','ITR, AOC-4, MGT-7A and DIR-3 KYC per client, rolling forward each year.','',''),
-      scardHtml('green','Step 6','Exports','Excel download of any filtered view.','','')
+      scardHtml('yellow','Ready','Chase and record','WhatsApp and email with the message pre-written, plus a full reply thread.','tasks','Open a task'),
+      scardHtml('red','Ready','Compliance calendar','ITR, AOC-4, MGT-7A and DIR-3 KYC per client, rolling forward each year.','clients','Open compliance'),
+      scardHtml('green','Ready','Exports','Excel download of any filtered view.','reports','Open reports')
     ].join('') : [
       scardHtml('orange','Ready','Your task list','Everything assigned to you, most urgent first.','mytasks','Open my tasks'),
-      scardHtml('navy','Step 3','Status and replies','Update status, attach a document and reply to IAMUSAP.','','')
+      scardHtml('navy','Ready','Status and replies','Update status, attach a document and reply to IAMUSAP.','messages','Open messages')
     ].join('');
 
     body.innerHTML =
@@ -911,12 +984,14 @@ const VIEWS = {
     body.innerHTML =
       '<div class="page-head"><div><h2>All work</h2><p>Every task across all partner firms, most urgent first.</p></div>' +
         '<div class="spacer"></div>' +
+        '<button class="btn btn-ghost" id="btnExportWork">Export to Excel</button>' +
         '<button class="btn btn-ghost" id="btnRefresh">Refresh</button>' +
         '<button class="btn btn-primary" id="btnNewTask">+ Assign work</button></div>' +
       '<div id="statHost"></div>' +
       '<div class="panel"><div class="filters" id="filterBar"></div><div id="tableHost"></div></div>';
 
     $('btnNewTask').addEventListener('click', function(){ openTaskModal(null); });
+    $('btnExportWork').addEventListener('click', exportWork);
     $('btnRefresh').addEventListener('click', function(){
       cache.invalidate('tasks');
       toast('Reloading from the database…');
@@ -1002,9 +1077,131 @@ const VIEWS = {
     });
   },
 
-  clients:  function(body){ body.innerHTML = placeholder('Clients & compliance','Statutory deadlines per client, rolling forward each year, with a one-tap reminder email.',5); },
-  reports:  function(body){ body.innerHTML = placeholder('Reports','Excel export of any filtered view, plus a monthly summary.',6); },
-  messages: function(body){ body.innerHTML = placeholder('Messages','Notes and replies between you and IAMUSAP, kept against each task.',4); }
+  clients: async function(body){
+    if (!isAdmin()){ body.innerHTML = placeholder('Clients & compliance','Administrators only.'); return; }
+    const clients = await loadClients();
+    const rows = upcomingCompliance(clients);
+    const soon = rows.filter(function(r){
+      const k = urgency(r.due, null).key;
+      return k === 'overdue' || k === 'today' || k === 'urgent' || k === 'soon';
+    });
+
+    body.innerHTML =
+      '<div class="page-head"><div><h2>Clients &amp; compliance</h2>' +
+        '<p>Statutory dates per client. They repeat every year — the app always shows the next occurrence.</p></div>' +
+        '<div class="spacer"></div>' +
+        '<button class="btn btn-ghost" id="btnExportComp">Export to Excel</button>' +
+        '<button class="btn btn-primary" id="btnAddClient">+ Add client</button></div>' +
+
+      '<div class="stat-grid">' +
+        '<div class="stat navy"><div class="n mono">' + clients.length + '</div><div class="l">Clients</div></div>' +
+        '<div class="stat navy"><div class="n mono">' + rows.length + '</div><div class="l">Tracked dates</div></div>' +
+        '<div class="stat orange"><div class="n mono">' + soon.length + '</div><div class="l">Due within 7 days</div></div>' +
+        '<div class="stat red"><div class="n mono">' +
+          rows.filter(function(r){ return urgency(r.due,null).key === 'overdue'; }).length +
+          '</div><div class="l">Overdue</div></div></div>' +
+
+      '<div class="panel mb18"><div class="panel-head"><h3>Compliance calendar</h3>' +
+        '<div class="spacer"></div><span class="tiny muted">Soonest first</span></div>' +
+        complianceTable(rows) + '</div>' +
+
+      '<div class="page-head"><div><h2 style="font-size:19px">Clients</h2></div></div>' +
+      (clients.length
+        ? clients.map(function(c){
+            const n = (c.complianceItems || []).length;
+            return '<div class="firm-card"><div class="firm-head">' +
+              '<h3>' + esc(c.name) + '</h3>' +
+              (c.company ? '<span class="pill pill-navy">' + esc(c.company) + '</span>' : '') +
+              '<span class="pill pill-grey">' + n + ' item' + (n===1?'':'s') + '</span>' +
+              '<div class="spacer"></div>' +
+              '<button class="btn btn-ghost btn-sm" data-editclient="' + esc(c.id) + '">Edit</button></div>' +
+              '<div class="person"><div><div class="person-mail">' +
+                (c.email ? esc(c.email) : 'No email') + (c.phone ? ' · ' + esc(c.phone) : '') + '</div>' +
+                (c.notes ? '<div class="tiny muted">' + esc(c.notes) + '</div>' : '') +
+              '</div></div></div>';
+          }).join('')
+        : '<div class="panel"><div class="empty"><h4>No clients yet</h4>' +
+          '<p>Add a client and tick which statutory filings apply to them.</p></div></div>');
+
+    $('btnAddClient').addEventListener('click', function(){ openClientModal(null); });
+    $('btnExportComp').addEventListener('click', exportCompliance);
+    body.querySelectorAll('[data-editclient]').forEach(function(b){
+      b.addEventListener('click', function(){ openClientModal(b.dataset.editclient); });
+    });
+    body.querySelectorAll('[data-remind]').forEach(function(b){
+      b.addEventListener('click', function(){ sendComplianceReminder(rows[parseInt(b.dataset.remind,10)]); });
+    });
+  },
+
+  reports: async function(body){
+    if (!isAdmin()){ body.innerHTML = placeholder('Reports','Administrators only.'); return; }
+    const dir = await loadDirectory();
+    const tasks = await loadTasks();
+    const stats = computeStats(tasks);
+
+    const perFirm = {};
+    liveTasks(tasks).forEach(function(t){
+      const k = t.firmName || 'Unassigned';
+      const row = perFirm[k] = perFirm[k] || { total:0, done:0, overdue:0 };
+      row.total++;
+      const u = urgency(t.deadline, t.status);
+      if (u.key === 'done') row.done++;
+      else if (u.key === 'overdue') row.overdue++;
+    });
+
+    body.innerHTML =
+      '<div class="page-head"><div><h2>Reports</h2>' +
+        '<p>Download any view as a spreadsheet, or see how each firm is doing.</p></div></div>' +
+
+      statTiles(stats) +
+
+      '<div class="panel mb18"><div class="panel-head"><h3>Downloads</h3></div>' +
+        '<div class="panel-body"><div class="row" style="flex-wrap:wrap">' +
+          '<button class="btn btn-navy" id="rExportWork">Work (current filters)</button>' +
+          '<button class="btn btn-navy" id="rExportComp">Compliance calendar</button>' +
+        '</div>' +
+        '<p class="small muted mt16">The work export uses whatever filters are set on the All work screen, ' +
+          'so filter first if you want a subset.</p></div></div>' +
+
+      '<div class="panel"><div class="panel-head"><h3>By partner firm</h3></div>' +
+        (Object.keys(perFirm).length
+          ? '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
+            '<th>Firm</th><th>Tasks</th><th>Completed</th><th>Overdue</th><th>Completion</th>' +
+            '</tr></thead><tbody>' +
+            Object.keys(perFirm).sort().map(function(k){
+              const r = perFirm[k];
+              const pct = r.total ? Math.round(r.done / r.total * 100) : 0;
+              return '<tr><td class="t-title">' + esc(k) + '</td>' +
+                '<td class="mono">' + r.total + '</td>' +
+                '<td class="mono">' + r.done + '</td>' +
+                '<td class="mono">' + (r.overdue ? '<span class="pill pill-red">' + r.overdue + '</span>' : '0') + '</td>' +
+                '<td class="mono">' + pct + '%</td></tr>';
+            }).join('') + '</tbody></table></div>'
+          : '<div class="empty"><h4>No work yet</h4><p>Assign some tasks and this fills in.</p></div>') +
+      '</div>';
+
+    $('rExportWork').addEventListener('click', exportWork);
+    $('rExportComp').addEventListener('click', async function(){
+      await loadClients();
+      exportCompliance();
+    });
+  },
+
+  messages: async function(body){
+    const rows = await loadTasks();
+    const withMsgs = sortByDeadline(liveTasks(rows).filter(function(t){
+      return (t.msgCount || 0) > 0 || t.unreadForAssignee;
+    }));
+    body.innerHTML =
+      '<div class="page-head"><div><h2>Messages</h2>' +
+        '<p>Tasks with a conversation. Open one to read and reply.</p></div></div>' +
+      '<div class="panel">' +
+        (withMsgs.length ? taskTable(withMsgs, { actions:false })
+          : '<div class="empty"><h4>No messages yet</h4>' +
+            '<p>When IAMUSAP writes to you about a task it will appear here.</p></div>') +
+      '</div>';
+    wireTaskOpen(body);
+  }
 };
 
 /* ---------- work table + filters ---------- */
@@ -1129,6 +1326,8 @@ async function openTaskDetail(taskId){
           : '') +
       '</div>' +
 
+      (isAdmin() ? chaseSectionHtml(t) : '') +
+
       '<div><div class="sec-title">Conversation</div>' +
         '<div class="thread mt16" id="dThread"><div class="loading-row"><div class="spinner sm"></div> Loading messages…</div></div>' +
         '<div class="compose mt16">' +
@@ -1150,6 +1349,14 @@ async function openTaskDetail(taskId){
       if (aa) aa.addEventListener('click', function(){ addAttachment(root, t); });
 
       root.querySelector('#dPost').addEventListener('click', function(){ postMessage(root, t); });
+
+      const wb = root.querySelector('#dWhats');
+      if (wb) wb.addEventListener('click', function(){ chaseVia(root, t, 'whatsapp'); });
+      const eb = root.querySelector('#dMail');
+      if (eb) eb.addEventListener('click', function(){ chaseVia(root, t, 'email'); });
+      const lb = root.querySelector('#dLogReply');
+      if (lb) lb.addEventListener('click', function(){ openLogReply(t); });
+
       markRead(t);
     }
   });
@@ -1688,6 +1895,371 @@ function doRebuild(){
         toast('Rebuild failed: ' + (err.message || err.code), 'err');
       }
     });
+}
+
+/* =====================================================================
+   STEP 4 — CHASING PEOPLE
+   Sending is one tap: the link opens WhatsApp or the mail app with the
+   message already written, and you press send. A browser cannot send by
+   itself, and it cannot read what comes back. So anything that arrives by
+   WhatsApp, email or phone is pasted into "log a reply" and stored in the
+   same thread as in-app messages — one history whatever route it took.
+   ===================================================================== */
+function chaseSectionHtml(t){
+  const person = (cache.directory && cache.directory.people || [])
+    .find(function(p){ return p.email === t.assigneeEmail; }) || {};
+  const hasPhone = !!phoneDigits(person.phone);
+
+  return '<div><div class="sec-title">Chase this up</div>' +
+    '<div class="row mt16" style="flex-wrap:wrap">' +
+      (hasPhone
+        ? '<button class="btn btn-ghost btn-sm" id="dWhats">WhatsApp ' + esc(firstName(t.assigneeName)) + '</button>'
+        : '<span class="tiny muted">No phone number saved — add one under Partner firms to enable WhatsApp.</span>') +
+      '<button class="btn btn-ghost btn-sm" id="dMail">Email</button>' +
+      '<button class="btn btn-ghost btn-sm" id="dLogReply">Log a reply</button>' +
+    '</div>' +
+    '<div class="hint tiny mt16">These open WhatsApp or your mail app with the message pre-written — you still press send. ' +
+      'Replies do not come back into the app automatically; paste them into “Log a reply”, or ask them to reply in the app instead.</div>' +
+  '</div>';
+}
+
+/* Opens the channel AND records that the nudge went out, so the thread
+   shows a complete history without you having to remember. */
+async function chaseVia(root, t, channel){
+  const person = (cache.directory && cache.directory.people || [])
+    .find(function(p){ return p.email === t.assigneeEmail; }) || {};
+  const text = taskReminderText(t);
+
+  let url = '';
+  if (channel === 'whatsapp'){
+    url = waLink(person.phone, text);
+    if (!url){ toast('No usable phone number for this person.','err'); return; }
+  } else {
+    url = mailLink(t.assigneeEmail, 'Reminder: ' + t.title + ' — due ' + fmtDate(t.deadline), text);
+    if (!url){ toast('No email address for this person.','err'); return; }
+  }
+
+  window.open(url, '_blank', 'noopener');
+
+  try {
+    await addThreadMessage(t, {
+      body: text,
+      channel: channel,
+      direction: 'outbound',
+      loggedManually: true
+    });
+    await loadThread(root, t);
+    toast(channel === 'whatsapp' ? 'WhatsApp opened and logged' : 'Email opened and logged', 'ok');
+  } catch (err){
+    console.error(err);
+    toast('Opened, but could not log it: ' + (err.message || err.code), 'err');
+  }
+}
+
+function openLogReply(t){
+  openModal({
+    title:'Log a reply', narrow:true,
+    body:
+      '<p class="small muted">Paste what they said. This is for replies that came in by WhatsApp, email or phone — ' +
+        'anything typed inside the app arrives on its own.</p>' +
+      '<div class="form-field"><label>Came in by</label><select id="lChan">' +
+        '<option value="whatsapp">WhatsApp</option><option value="email">Email</option>' +
+        '<option value="phone">Phone call</option><option value="other">Other</option></select></div>' +
+      '<div class="form-field"><label>What they said <span class="req">*</span></label>' +
+        '<textarea id="lBody" placeholder="Paste or summarise their reply…"></textarea></div>' +
+      '<div id="lErr"></div>',
+    foot:'<button class="btn btn-ghost" data-close>Cancel</button>' +
+         '<button class="btn btn-primary" id="lSave">Save to thread</button>',
+    onReady:function(root){
+      root.querySelector('#lSave').addEventListener('click', async function(){
+        const btn = root.querySelector('#lSave');
+        const body = root.querySelector('#lBody').value.trim();
+        const chan = root.querySelector('#lChan').value;
+        if (!body){ root.querySelector('#lErr').innerHTML = '<div class="notice">Type what they said.</div>'; return; }
+        btn.disabled = true; btn.textContent = 'Saving…';
+        try {
+          await addThreadMessage(t, {
+            body: body, channel: chan, direction:'inbound', loggedManually:true,
+            authorNameOverride: (t.assigneeName || t.assigneeEmail) + ' (logged by ' + firstName(session.profile.name) + ')'
+          });
+          toast('Reply logged', 'ok');
+          closeModal();
+          openTaskDetail(t.id);
+        } catch (err){
+          console.error(err);
+          btn.disabled = false; btn.textContent = 'Save to thread';
+          root.querySelector('#lErr').innerHTML = '<div class="notice"><strong>Could not save</strong>' + esc(err.message || String(err)) + '</div>';
+        }
+      });
+    }
+  });
+}
+
+/* Single place that writes a thread message and keeps the task's counters
+   in step. Everything — in-app, WhatsApp, email, logged phone call —
+   goes through here, which is what makes real two-way sync a drop-in
+   later rather than a rewrite. */
+async function addThreadMessage(t, opts){
+  const msg = clean({
+    body: opts.body,
+    authorEmail: myEmail(),
+    authorName: opts.authorNameOverride || session.profile.name || myEmail(),
+    authorRole: session.role,
+    channel: opts.channel || 'app',
+    direction: opts.direction || 'outbound',
+    loggedManually: !!opts.loggedManually,
+    loggedBy: opts.loggedManually ? myEmail() : null,
+    externalId: null,
+    createdAt: FV.serverTimestamp()
+  });
+  await db.collection('tasks').doc(t.id).collection('thread').add(msg);
+  await db.collection('tasks').doc(t.id).update({
+    msgCount: (t.msgCount || 0) + 1,
+    lastMessageAt: FV.serverTimestamp(),
+    lastMessageBy: myEmail(),
+    unreadForAdmin: !isAdmin(),
+    unreadForAssignee: isAdmin(),
+    updatedAt: FV.serverTimestamp()
+  });
+  t.msgCount = (t.msgCount || 0) + 1;
+}
+
+/* =====================================================================
+   STEP 5 — CLIENTS & COMPLIANCE
+   ===================================================================== */
+async function loadClients(force){
+  if (cache.clients && !force) return cache.clients;
+  const snap = await readQuery(db.collection('clients').limit(300));
+  const rows = [];
+  snap.forEach(function(d){ const c = d.data() || {}; c.id = d.id; rows.push(c); });
+  cache.clients = rows;
+  return rows;
+}
+
+/* Flatten every client's items into one dated list, sorted soonest first. */
+function upcomingCompliance(clients){
+  const out = [];
+  clients.forEach(function(c){
+    if (c.active === false) return;
+    (c.complianceItems || []).forEach(function(item){
+      if (item.active === false) return;
+      out.push({
+        clientId: c.id, clientName: c.name, company: c.company || '',
+        email: c.email || '', phone: c.phone || '',
+        code: item.code || '', label: item.label || item.code || 'Item',
+        month: item.month, day: item.day,
+        due: nextComplianceDate(item.month, item.day),
+        lastReminderAt: item.lastReminderAt || null
+      });
+    });
+  });
+  return out.sort(function(a,b){ return a.due - b.due; });
+}
+
+function complianceTable(rows){
+  if (!rows.length){
+    return '<div class="empty"><h4>No compliance dates yet</h4>' +
+      '<p>Add a client and tick the statutory items that apply to them.</p></div>';
+  }
+  return '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
+    '<th>Client</th><th>Compliance</th><th>Next due</th><th>Urgency</th><th>Last reminded</th><th></th>' +
+    '</tr></thead><tbody>' +
+    rows.map(function(r, i){
+      const u = urgency(r.due, null);
+      return '<tr class="is-' + u.key + '">' +
+        '<td><div class="t-title">' + esc(r.clientName) + '</div>' +
+          (r.company ? '<div class="tiny muted">' + esc(r.company) + '</div>' : '') + '</td>' +
+        '<td>' + esc(r.label) + (r.code ? ' <span class="pill pill-grey">' + esc(r.code) + '</span>' : '') + '</td>' +
+        '<td class="nowrap">' + fmtDate(r.due) + '</td>' +
+        '<td>' + pill(u) + '</td>' +
+        '<td class="nowrap tiny muted">' + (r.lastReminderAt ? fmtDate(r.lastReminderAt) : 'Never') + '</td>' +
+        '<td><div class="cell-actions">' +
+          (r.email ? '<button class="btn-icon" data-remind="' + i + '">Send reminder</button>'
+                   : '<span class="tiny muted">No email</span>') +
+        '</div></td></tr>';
+    }).join('') + '</tbody></table></div>';
+}
+
+async function sendComplianceReminder(row){
+  const client = (cache.clients || []).find(function(c){ return c.id === row.clientId; });
+  if (!client) return;
+  const subject = 'Reminder: ' + row.label + ' due ' + fmtDate(row.due) +
+    (client.company ? ' — ' + client.company : '');
+  const body = complianceReminderText(client, row, row.due);
+  const url = mailLink(client.email, subject, body);
+  if (!url){ toast('This client has no email address.','err'); return; }
+
+  window.open(url, '_blank', 'noopener');
+
+  try {
+    await db.collection('clients').doc(client.id).collection('reminders').add(clean({
+      itemCode: row.code, itemLabel: row.label,
+      dueDate: TS.fromDate(row.due),
+      sentAt: FV.serverTimestamp(), sentBy: myEmail(),
+      channel: 'email', subject: subject, bodySnapshot: body
+    }));
+
+    const items = (client.complianceItems || []).map(function(it){
+      if (it.code === row.code) return Object.assign({}, it, { lastReminderAt: TS.fromDate(new Date()) });
+      return it;
+    });
+    await db.collection('clients').doc(client.id).update({
+      complianceItems: items, updatedAt: FV.serverTimestamp()
+    });
+    client.complianceItems = items;
+    toast('Email opened and logged against ' + client.name, 'ok');
+    if (session.view === 'clients') reroute();
+  } catch (err){
+    console.error(err);
+    toast('Opened, but could not log it: ' + (err.message || err.code), 'err');
+  }
+}
+
+function openClientModal(clientId){
+  const c = clientId ? (cache.clients || []).find(function(x){ return x.id === clientId; }) : null;
+  const existing = {};
+  ((c && c.complianceItems) || []).forEach(function(it){ existing[it.code] = it; });
+
+  const itemRows = COMPLIANCE_CATALOG.map(function(item){
+    const on = !!existing[item.code] && existing[item.code].active !== false;
+    return '<label class="checkline" style="padding:4px 0">' +
+      '<input type="checkbox" data-item="' + esc(item.code) + '"' + (on ? ' checked' : '') + '> ' +
+      esc(item.label) + ' <span class="tiny muted">— ' + item.day + ' ' +
+      ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][item.month-1] + '</span></label>';
+  }).join('');
+
+  openModal({
+    title: c ? 'Edit client' : 'Add client',
+    body:
+      '<div class="form-row">' +
+        '<div class="form-field"><label>Client name <span class="req">*</span></label>' +
+          '<input id="cName" maxlength="80" value="' + esc(c ? c.name : '') + '" placeholder="e.g. Mr. Devanand"></div>' +
+        '<div class="form-field"><label>Company</label>' +
+          '<input id="cCompany" maxlength="120" value="' + esc(c && c.company || '') + '"></div></div>' +
+      '<div class="form-row">' +
+        '<div class="form-field"><label>Email</label>' +
+          '<input id="cMail" type="email" value="' + esc(c && c.email || '') + '">' +
+          '<div class="hint">Needed for the reminder button.</div></div>' +
+        '<div class="form-field"><label>Phone</label>' +
+          '<input id="cPhone" value="' + esc(c && c.phone || '') + '"></div></div>' +
+      '<div class="form-field"><label>Compliance items</label>' +
+        '<div>' + itemRows + '</div>' +
+        '<div class="hint">Dates repeat every year. The app always shows the next occurrence.</div></div>' +
+      '<div class="form-field"><label>Notes</label>' +
+        '<textarea id="cNotes" maxlength="1000">' + esc(c && c.notes || '') + '</textarea></div>' +
+      '<div id="cErr"></div>',
+    foot:'<button class="btn btn-ghost" data-close>Cancel</button>' +
+         '<button class="btn btn-primary" id="cSave">' + (c ? 'Save changes' : 'Add client') + '</button>',
+    onReady:function(root){
+      root.querySelector('#cSave').addEventListener('click', function(){ saveClient(clientId, root, existing); });
+    }
+  });
+}
+
+async function saveClient(clientId, root, existing){
+  const btn = root.querySelector('#cSave');
+  const errBox = root.querySelector('#cErr');
+  const name = root.querySelector('#cName').value.trim();
+  if (!name){ errBox.innerHTML = '<div class="notice">Enter the client name.</div>'; return; }
+
+  const items = [];
+  root.querySelectorAll('[data-item]').forEach(function(cb){
+    if (!cb.checked) return;
+    const def = COMPLIANCE_CATALOG.find(function(x){ return x.code === cb.dataset.item; });
+    const prev = existing[def.code] || {};
+    items.push(clean({
+      code: def.code, label: def.label, month: def.month, day: def.day,
+      active: true,
+      lastReminderAt: prev.lastReminderAt || null
+    }));
+  });
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const payload = clean({
+    name: name,
+    company: root.querySelector('#cCompany').value.trim(),
+    email: root.querySelector('#cMail').value.trim(),
+    phone: root.querySelector('#cPhone').value.trim(),
+    notes: root.querySelector('#cNotes').value.trim(),
+    complianceItems: items,
+    active: true,
+    updatedAt: FV.serverTimestamp()
+  });
+  if (!clientId) payload.createdAt = FV.serverTimestamp();
+
+  try {
+    if (clientId){
+      await db.collection('clients').doc(clientId).set(payload, { merge:true });
+      const local = (cache.clients || []).find(function(x){ return x.id === clientId; });
+      if (local) Object.assign(local, payload);
+    } else {
+      const ref = await db.collection('clients').add(payload);
+      cache.clients = cache.clients || [];
+      cache.clients.push(Object.assign({}, payload, { id: ref.id }));
+    }
+    toast(clientId ? 'Client updated' : 'Client added', 'ok');
+    closeModal();
+    reroute();
+  } catch (err){
+    console.error(err);
+    btn.disabled = false;
+    btn.textContent = clientId ? 'Save changes' : 'Add client';
+    errBox.innerHTML = '<div class="notice"><strong>Could not save</strong>' + esc(err.message || String(err)) + '</div>';
+  }
+}
+
+/* =====================================================================
+   STEP 6 — EXCEL EXPORT
+   SheetJS is fetched from the CDN only when you actually click export,
+   so it costs nothing on a normal page load.
+   ===================================================================== */
+async function exportRows(rows, sheetName, fileName){
+  if (!rows.length){ toast('Nothing to export with the current filters.','err'); return; }
+  toast('Preparing the file…');
+  try {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    const stamp = toInputDate(new Date());
+    XLSX.writeFile(wb, fileName + '-' + stamp + '.xlsx');
+    toast('Downloaded', 'ok');
+  } catch (err){
+    console.error(err);
+    toast('Export failed: ' + (err.message || err), 'err');
+  }
+}
+
+function exportWork(){
+  const rows = sortByDeadline(applyFilters(cache.tasks || []));
+  const aoa = [['Task','Description','Assigned to','Email','Firm','Deadline','Urgency','Status','Priority','Messages','Completed on']];
+  rows.forEach(function(t){
+    const u = urgency(t.deadline, t.status);
+    aoa.push([
+      t.title || '', t.description || '', t.assigneeName || '', t.assigneeEmail || '',
+      t.firmName || '', fmtDate(t.deadline), u.label,
+      (STATUS[t.status] || STATUS.not_started).label,
+      PRIORITY[t.priority] || 'Normal',
+      t.msgCount || 0,
+      t.completedDate ? fmtDate(t.completedDate) : ''
+    ]);
+  });
+  exportRows(aoa, 'Work', 'IAMUSAP-work');
+}
+
+function exportCompliance(){
+  const rows = upcomingCompliance(cache.clients || []);
+  const aoa = [['Client','Company','Email','Phone','Compliance','Code','Next due','Urgency','Last reminded']];
+  rows.forEach(function(r){
+    aoa.push([
+      r.clientName || '', r.company || '', r.email || '', r.phone || '',
+      r.label || '', r.code || '', fmtDate(r.due), urgency(r.due, null).label,
+      r.lastReminderAt ? fmtDate(r.lastReminderAt) : 'Never'
+    ]);
+  });
+  exportRows(aoa, 'Compliance', 'IAMUSAP-compliance');
 }
 
 /* ---------- wiring ---------- */
