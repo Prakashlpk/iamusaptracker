@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IAMUSAP Tracker v8</title>
+<title>IAMUSAP Tracker v9</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -510,7 +510,7 @@ const COMPLIANCE_CATALOG = [
 ];
 
 const APP_URL = 'https://iamusaptracker.vercel.app';
-const APP_VERSION = 'v8';
+const APP_VERSION = 'v9';
 
 /* ---------- contact links ----------
    These build a link that OPENS WhatsApp or the mail app with the message
@@ -2466,7 +2466,7 @@ async function runAutoReminders(tasks){
       await db.collection('tasks').doc(t.id).collection('thread').add(clean({
         body: autoReminderText(t),
         authorEmail: myEmail(),
-        authorName: 'IAMUSAP (automatic)',
+        authorName: 'IAMUSAP',
         authorRole: 'admin',
         channel: 'app',
         direction: 'outbound',
