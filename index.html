@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IAMUSAP Tracker v7</title>
+<title>IAMUSAP Tracker v8</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -235,6 +235,21 @@ code.inline{background:var(--navy-050);padding:2px 7px;border-radius:5px;font-si
 .compose textarea{min-height:66px}
 .unread-dot{width:7px;height:7px;border-radius:50%;background:var(--orange-500);display:inline-block;flex:none}
 
+/* ---------- notifications ---------- */
+.bell{display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;
+  background:rgba(255,255,255,.10);color:#C7D6E5;font-size:13px;font-weight:600}
+.bell:hover{background:rgba(255,255,255,.18);color:#fff}
+.bell.has-unread{background:var(--orange-500);color:#fff}
+.bell-icon{font-weight:600}
+.bell-badge{background:rgba(0,0,0,.24);border-radius:999px;padding:1px 8px;font-size:11.5px;font-weight:700}
+.notif-list{display:flex;flex-direction:column;gap:8px}
+.notif{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:1px solid var(--line);
+  border-radius:var(--r-sm);text-align:left;width:100%;background:var(--white)}
+.notif:hover{background:var(--navy-050);border-color:#D6E2F0}
+.notif .unread-dot{margin-top:6px}
+.notif-title{display:block;font-weight:700;font-size:13.5px}
+.notif-sub{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+
 .meter{position:fixed;right:14px;bottom:14px;z-index:60;background:var(--navy-900);color:#fff;
   border-radius:999px;padding:7px 14px;font-size:11.5px;font-weight:600;box-shadow:var(--shadow);
   display:flex;align-items:center;gap:7px}
@@ -303,6 +318,9 @@ code.inline{background:var(--navy-050);padding:2px 7px;border-radius:5px;font-si
     <div class="wrap">
       <div class="logo"><span class="dot"></span>IAMUSAP <span class="sub">Work &amp; Compliance Tracker</span></div>
       <div class="spacer"></div>
+      <button class="bell" id="btnNotif" title="New messages">
+        <span class="bell-icon">Messages</span><span class="bell-badge" id="notifCount">0</span>
+      </button>
       <div class="who">
         <div class="avatar" id="uAvatar"></div>
         <div>
@@ -492,7 +510,7 @@ const COMPLIANCE_CATALOG = [
 ];
 
 const APP_URL = 'https://iamusaptracker.vercel.app';
-const APP_VERSION = 'v7';
+const APP_VERSION = 'v8';
 
 /* ---------- contact links ----------
    These build a link that OPENS WhatsApp or the mail app with the message
@@ -511,6 +529,17 @@ function waLink(phone, text){
   const d = phoneDigits(phone);
   if (!d) return '';
   return 'https://wa.me/' + d + '?text=' + encodeURIComponent(text);
+}
+
+/* mailto: hands off to whatever the computer thinks is the default mail
+   program — often Outlook, sometimes nothing at all. This opens Gmail in
+   the browser directly, which is what actually happens on your machines. */
+function gmailLink(email, subject, body){
+  if (!email) return '';
+  return 'https://mail.google.com/mail/?view=cm&fs=1' +
+    '&to=' + encodeURIComponent(email) +
+    '&su=' + encodeURIComponent(subject) +
+    '&body=' + encodeURIComponent(body);
 }
 
 function mailLink(email, subject, body){
@@ -946,6 +975,14 @@ const VIEWS = {
     const p = session.profile;
     if (admin) await loadDirectory();
     const rows = await loadTasks();
+
+    // Post automatic reminders for anything due within 7 days, then
+    // recompute so the counts on screen include them.
+    if (admin){
+      const sent = await runAutoReminders(rows);
+      if (sent) toast(sent + ' automatic reminder' + (sent===1?'':'s') + ' posted to partner dashboards', 'ok');
+    }
+
     const stats = computeStats(rows);
     const open = sortByDeadline(liveTasks(rows).filter(function(t){
       return t.status !== 'completed';
@@ -978,6 +1015,7 @@ const VIEWS = {
     const nb = $('btnNewTaskHome');
     if (nb) nb.addEventListener('click', function(){ openTaskModal(null); });
     wireTaskOpen(body);
+    updateNotifBadge();
     body.querySelectorAll('[data-edit]').forEach(function(b){
       b.addEventListener('click', function(){ openTaskModal(b.dataset.edit); });
     });
@@ -1009,6 +1047,7 @@ const VIEWS = {
 
     renderFilterBar(dir);
     renderWorkTable();
+    updateNotifBadge();
   },
 
   mytasks: async function(body){
@@ -1022,6 +1061,7 @@ const VIEWS = {
         '<div class="spacer"></div><span class="tiny muted">Open a task to update it</span></div>' +
         taskTable(live, { actions:false }) + '</div>';
     wireTaskOpen(body);
+    updateNotifBadge();
   },
 
   firms: async function(body){
@@ -1140,6 +1180,9 @@ const VIEWS = {
     body.querySelectorAll('[data-remind]').forEach(function(b){
       b.addEventListener('click', function(){ sendComplianceReminder(rows[parseInt(b.dataset.remind,10)]); });
     });
+    body.querySelectorAll('[data-cwa]').forEach(function(b){
+      b.addEventListener('click', function(){ sendComplianceWhatsApp(rows[parseInt(b.dataset.cwa,10)]); });
+    });
   },
 
   reports: async function(body){
@@ -1210,6 +1253,7 @@ const VIEWS = {
             '<p>When IAMUSAP writes to you about a task it will appear here.</p></div>') +
       '</div>';
     wireTaskOpen(body);
+    updateNotifBadge();
   }
 };
 
@@ -1555,6 +1599,7 @@ async function markRead(t){
   try {
     await db.collection('tasks').doc(t.id).update(patch);
     t[field] = false;
+    updateNotifBadge();
   } catch (err){
     console.error('markRead failed', err);
   }
@@ -1947,7 +1992,7 @@ async function chaseFromRow(taskId, channel){
     url = waLink(person.phone, text);
     if (!url){ toast('No phone number saved for ' + (t.assigneeName || 'this person') + '. Add one under Partner firms.','err'); return; }
   } else {
-    url = mailLink(t.assigneeEmail, 'Reminder: ' + t.title + ' — due ' + fmtDate(t.deadline), text);
+    url = gmailLink(t.assigneeEmail, 'Reminder: ' + t.title + ' — due ' + fmtDate(t.deadline), text);
     if (!url){ toast('No email address for this person.','err'); return; }
   }
 
@@ -2019,7 +2064,7 @@ async function chaseVia(root, t, channel){
     url = waLink(person.phone, text);
     if (!url){ toast('No usable phone number for this person.','err'); return; }
   } else {
-    url = mailLink(t.assigneeEmail, 'Reminder: ' + t.title + ' — due ' + fmtDate(t.deadline), text);
+    url = gmailLink(t.assigneeEmail, 'Reminder: ' + t.title + ' — due ' + fmtDate(t.deadline), text);
     if (!url){ toast('No email address for this person.','err'); return; }
   }
 
@@ -2158,10 +2203,43 @@ function complianceTable(rows){
         '<td>' + pill(u) + '</td>' +
         '<td class="nowrap tiny muted">' + (r.lastReminderAt ? fmtDate(r.lastReminderAt) : 'Never') + '</td>' +
         '<td><div class="cell-actions">' +
-          (r.email ? '<button class="btn-icon" data-remind="' + i + '">Send reminder</button>'
+          (phoneDigits(r.phone) ? '<button class="btn-icon act-wa" data-cwa="' + i + '">WhatsApp</button>' : '') +
+          (r.email ? '<button class="btn-icon act-mail" data-remind="' + i + '">Email</button>'
                    : '<span class="tiny muted">No email</span>') +
         '</div></td></tr>';
     }).join('') + '</tbody></table></div>';
+}
+
+async function sendComplianceWhatsApp(row){
+  const client = (cache.clients || []).find(function(c){ return c.id === row.clientId; });
+  if (!client) return;
+  const body = complianceReminderText(client, row, row.due);
+  const url = waLink(client.phone, body);
+  if (!url){ toast('This client has no usable phone number.','err'); return; }
+
+  window.open(url, '_blank', 'noopener');
+
+  try {
+    await db.collection('clients').doc(client.id).collection('reminders').add(clean({
+      itemCode: row.code, itemLabel: row.label,
+      dueDate: TS.fromDate(row.due),
+      sentAt: FV.serverTimestamp(), sentBy: myEmail(),
+      channel: 'whatsapp', subject: row.label, bodySnapshot: body
+    }));
+    const items = (client.complianceItems || []).map(function(it){
+      if (it.code === row.code) return Object.assign({}, it, { lastReminderAt: TS.fromDate(new Date()) });
+      return it;
+    });
+    await db.collection('clients').doc(client.id).update({
+      complianceItems: items, updatedAt: FV.serverTimestamp()
+    });
+    client.complianceItems = items;
+    toast('WhatsApp opened and logged against ' + client.name, 'ok');
+    if (session.view === 'clients') reroute();
+  } catch (err){
+    console.error(err);
+    toast('Opened, but could not log it: ' + (err.message || err.code), 'err');
+  }
 }
 
 async function sendComplianceReminder(row){
@@ -2170,7 +2248,7 @@ async function sendComplianceReminder(row){
   const subject = 'Reminder: ' + row.label + ' due ' + fmtDate(row.due) +
     (client.company ? ' — ' + client.company : '');
   const body = complianceReminderText(client, row, row.due);
-  const url = mailLink(client.email, subject, body);
+  const url = gmailLink(client.email, subject, body);
   if (!url){ toast('This client has no email address.','err'); return; }
 
   window.open(url, '_blank', 'noopener');
@@ -2346,8 +2424,141 @@ function exportCompliance(){
   exportRows(aoa, 'Compliance', 'IAMUSAP-compliance');
 }
 
+/* =====================================================================
+   AUTOMATIC IN-APP REMINDERS
+   When an admin opens the dashboard, any task falling due within 7 days
+   (or already overdue) gets a reminder posted into its thread — which
+   means it lands in that person's dashboard without you typing anything.
+   A 3-day cooldown per task stops it nagging on every page load.
+
+   The honest limit: this runs when the app is open. Nothing in a browser
+   can fire at 9am while everyone is asleep. For that you need Google
+   Apps Script (free, email only) or the paid WhatsApp Business API.
+   ===================================================================== */
+const AUTO_REMINDER_COOLDOWN_DAYS = 3;
+const AUTO_REMINDER_MAX_PER_LOAD = 10;
+
+function autoReminderText(t){
+  const u = urgency(t.deadline, t.status);
+  return 'Automatic reminder: “' + t.title + '” is due on ' + fmtDate(t.deadline) +
+    ' (' + u.label + '). Current status: ' + (STATUS[t.status] || STATUS.not_started).label +
+    '. Please update it when you can.';
+}
+
+function needsAutoReminder(t){
+  if (t.archived || t.status === 'completed') return false;
+  const k = urgency(t.deadline, t.status).key;
+  if (k !== 'overdue' && k !== 'today' && k !== 'urgent' && k !== 'soon') return false;
+  const last = toDate(t.lastAutoReminderAt);
+  if (!last) return true;
+  return (Date.now() - last.getTime()) > AUTO_REMINDER_COOLDOWN_DAYS * 86400000;
+}
+
+async function runAutoReminders(tasks){
+  if (!isAdmin()) return 0;
+  const due = tasks.filter(needsAutoReminder).slice(0, AUTO_REMINDER_MAX_PER_LOAD);
+  if (!due.length) return 0;
+
+  let sent = 0;
+  for (let i = 0; i < due.length; i++){
+    const t = due[i];
+    try {
+      await db.collection('tasks').doc(t.id).collection('thread').add(clean({
+        body: autoReminderText(t),
+        authorEmail: myEmail(),
+        authorName: 'IAMUSAP (automatic)',
+        authorRole: 'admin',
+        channel: 'app',
+        direction: 'outbound',
+        loggedManually: false,
+        automatic: true,
+        createdAt: FV.serverTimestamp()
+      }));
+      await db.collection('tasks').doc(t.id).update({
+        msgCount: (t.msgCount || 0) + 1,
+        lastMessageAt: FV.serverTimestamp(),
+        lastMessageBy: myEmail(),
+        lastAutoReminderAt: FV.serverTimestamp(),
+        unreadForAssignee: true,
+        updatedAt: FV.serverTimestamp()
+      });
+      t.msgCount = (t.msgCount || 0) + 1;
+      t.lastAutoReminderAt = TS.fromDate(new Date());
+      t.unreadForAssignee = true;
+      sent++;
+    } catch (err){
+      console.error('auto-reminder failed for', t.id, err);
+    }
+  }
+  return sent;
+}
+
+/* =====================================================================
+   NEW-MESSAGE NOTIFICATIONS
+   The bell in the top bar counts tasks with activity you have not seen.
+   Same mechanism for admin and partner — only the flag differs.
+   ===================================================================== */
+function unreadTasks(){
+  const rows = cache.tasks || [];
+  return rows.filter(function(t){
+    if (t.archived) return false;
+    return isAdmin() ? t.unreadForAdmin : t.unreadForAssignee;
+  });
+}
+
+function updateNotifBadge(){
+  const btn = $('btnNotif');
+  const badge = $('notifCount');
+  if (!btn || !badge) return;
+  const n = unreadTasks().length;
+  badge.textContent = n;
+  btn.classList.toggle('has-unread', n > 0);
+  btn.setAttribute('aria-label', n ? n + ' unread' : 'No new messages');
+}
+
+function openNotifications(){
+  const list = sortByDeadline(unreadTasks());
+  openModal({
+    title: list.length ? 'New messages (' + list.length + ')' : 'No new messages',
+    narrow: true,
+    body: list.length
+      ? '<p class="small muted">Tasks with activity you have not opened yet.</p>' +
+        '<div class="notif-list">' + list.map(function(t){
+          const u = urgency(t.deadline, t.status);
+          return '<button class="notif" data-notif="' + esc(t.id) + '">' +
+            '<span class="unread-dot"></span>' +
+            '<span><span class="notif-title">' + esc(t.title) + '</span>' +
+            '<span class="notif-sub">' +
+              (isAdmin() ? esc(t.assigneeName || t.assigneeEmail) : 'From IAMUSAP') +
+              ' · ' + esc(u.label) + '</span></span></button>';
+        }).join('') + '</div>'
+      : '<p class="small muted">Nothing new. Messages appear here when someone posts on a task.</p>',
+    foot: '<button class="btn btn-ghost" data-close>Close</button>' +
+          (list.length ? '<button class="btn btn-primary" id="nMarkAll">Mark all as read</button>' : ''),
+    onReady: function(root){
+      root.querySelectorAll('[data-notif]').forEach(function(b){
+        b.addEventListener('click', function(){
+          closeModal();
+          openTaskDetail(b.dataset.notif);
+        });
+      });
+      const ma = root.querySelector('#nMarkAll');
+      if (ma) ma.addEventListener('click', async function(){
+        ma.disabled = true;
+        ma.textContent = 'Marking…';
+        for (let i = 0; i < list.length; i++){ await markRead(list[i]); }
+        updateNotifBadge();
+        closeModal();
+        toast('All marked as read', 'ok');
+        reroute();
+      });
+    }
+  });
+}
+
 /* ---------- wiring ---------- */
 $('btnSignin').addEventListener('click', signIn);
+$('btnNotif').addEventListener('click', openNotifications);
 $('btnSignout').addEventListener('click', signOut);
 $('btnBlockedOut').addEventListener('click', signOut);
 $('btnBlockedRetry').addEventListener('click', function(){ cache.invalidate('profile'); location.reload(); });
